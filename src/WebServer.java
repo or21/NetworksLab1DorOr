@@ -1,44 +1,61 @@
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashMap;
 
 
 public class WebServer {
 
-	private ConfigFile m_config;
+	private int m_Port, m_MaxThreads;
+	private String m_Root, m_DefaultPage;
+	private ThreadPool m_ThreadPool;
+	private ServerSocket m_ServerSocket;
 
-	int port = 8080;
-
+	/**
+	 * Constructor, receives a configuration files, and parses its keys
+	 * @param i_ConfigFile
+	 */
+	public WebServer(ConfigFile i_ConfigFile) {
+		HashMap<String, String> configParams = i_ConfigFile.GetConfigurationParameters();
+		m_Port = Integer.valueOf(configParams.get("port"));
+		m_DefaultPage = configParams.get("defaultPage");
+		m_Root = configParams.get("root");
+		m_MaxThreads = Integer.valueOf(configParams.get("maxThreads"));
+		m_ThreadPool = new ThreadPool(m_MaxThreads);
+		m_ServerSocket = createServerSocket(m_Port);
+	}
+	
 	public void Run() {
-		// Establish the listen socket.
-		ServerSocket socket = null;
+		while (true)
+		{
+			Socket connection = catchConnection();
+			if (connection == null) { 
+				continue;
+			} else {
+				HTTPRequest request = new HTTPRequest(connection);
+				Thread thread = new Thread(request);
+				m_ThreadPool.AddThread(thread);
+			}
+		}
+	}
+
+	private Socket catchConnection() {
 		try {
-			socket = new ServerSocket(port);
+			return m_ServerSocket.accept();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		return null;
+	}
 
-		// Process HTTP service requests in an infinite loop.
-		while (true)
-		{
-			// Listen for a TCP connection request.
-			Socket connection = null;
-			try {
-				connection = socket.accept();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-			// Construct an object to process the HTTP request message.
-			HTTPRequest request = new HTTPRequest(connection);
-
-			// Create a new thread to process the request.
-			Thread thread = new Thread(request);
-
-			// Start the thread.
-			thread.start();
+	private ServerSocket createServerSocket(int m_Port2) {
+		try {
+			return new ServerSocket(m_Port);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
+		return null;
 	}
 }

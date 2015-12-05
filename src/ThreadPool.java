@@ -14,6 +14,13 @@ public class ThreadPool {
 	
 	public void AddThread(Thread i_ThreadToAdd) {
 		m_WaitingRequests.add(i_ThreadToAdd);
+		if (m_RunningRequests.size() < m_MaxNumOfThreads) {
+			m_WaitingRequests.remove(i_ThreadToAdd);
+			m_RunningRequests.add(i_ThreadToAdd);
+			i_ThreadToAdd.start();
+		}
+		
+		// Thread finishes, calls Manage()
 	}
 	
 	public void Manage() {
