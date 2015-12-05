@@ -1,10 +1,14 @@
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
+import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.HashMap;
+
+import javax.imageio.ImageIO;
 
 public class GetRequest implements ClientRequest {
 
@@ -16,23 +20,22 @@ public class GetRequest implements ClientRequest {
 	private String m_Content;
 
 	public GetRequest(String[] firstHeader, String[] copyOfRange) {
-		// TODO Auto-generated constructor stub
 		m_Url = firstHeader[1];
 		if (m_Url.equals("/")) {
 			m_Type = "text/html";
-		} else { // TODO: This doesn't care for parameters
+		} else { // TODO: Dor. This doesn't care for parameters
 			int i = firstHeader[1].lastIndexOf('.');
 			if (i > 0) {
 				String extension = firstHeader[1].substring(i + 1);
 				m_Type = extension.equals("html") ? "text/html" :
-					extension.equals("ico") ? "icon" :
+					extension.equals("ico") ? "icon" : // TODO: Dor. Place an icon, so that you can send it back, and not get a file not found...
 						"image";
 			}
 		}
 	}
 
 	@Override
-	public void ReturnResponse(OutputStream os) {
+	public void ReturnResponse(OutputStream i_OutputStream) {
 		// TODO Auto-generated method stub
 		File toReturn;
 		toReturn = (m_Url.equals("/") ? 
@@ -42,18 +45,18 @@ public class GetRequest implements ClientRequest {
 				readFile(new File(m_404NotFoundPath)) : 
 					readFile(toReturn));
 
-		StringBuilder okString = new StringBuilder("HTTP/1.1 200 OK\r\n");
+		StringBuilder responseString = new StringBuilder("HTTP/1.1 200 OK\r\n");
 		m_Headers = setupHeaders(m_Content);
 
 		for(String header : m_Headers.keySet()) {
-			okString.append(header).append(": ").append(m_Headers.get(header)).append("\r\n");
+			responseString.append(header).append(": ").append(m_Headers.get(header)).append("\r\n");
 		}
-		okString.append("\r\n").append(m_Content);
+		responseString.append("\r\n").append(m_Content);
 
 		try {
-			os.write(okString.toString().getBytes());
-			os.flush();
-			os.close();
+			i_OutputStream.write(responseString.toString().getBytes());
+			i_OutputStream.flush();
+			i_OutputStream.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -67,16 +70,24 @@ public class GetRequest implements ClientRequest {
 		return headers;
 	}
 
+	// TODO: Or. This doesn't work for images. Try to figure out why
 	private byte[] readFile(File i_File)
 	{
 		try
 		{
-			FileInputStream fis = new FileInputStream(i_File);
 			byte[] bFile = new byte[(int)i_File.length()];
-			// read until the end of the stream.
-			while(fis.available() != 0)
-			{
-				fis.read(bFile, 0, bFile.length);
+			if (m_Type.equals("text/html") || m_Type.equals("icon")) {
+
+				FileInputStream fis = new FileInputStream(i_File);
+				while(fis.available() != 0)
+				{
+					fis.read(bFile, 0, bFile.length);
+				}
+			} else {
+				BufferedImage image = ImageIO.read(i_File);
+				WritableRaster raster = image.getRaster();
+				DataBufferByte data = (DataBufferByte) raster.getDataBuffer(); 
+				bFile = data.getData();
 			}
 			return bFile;
 		}

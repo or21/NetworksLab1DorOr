@@ -3,7 +3,7 @@ import java.net.* ;
 
 public final class HTTPRequest implements Runnable
 {
-	public final static String CRLF = "\n";
+	public final static String CRLF = "\r\n";
 		
 	Socket m_Socket;
 
