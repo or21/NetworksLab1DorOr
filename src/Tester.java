@@ -6,5 +6,8 @@ public class Tester {
 		config.Parse("config.ini");
 		HashMap<String, String> map = config.GetConfigurationParameters();
 		System.out.println(map.get("port"));
+		
+		WebServer server = new WebServer(config);
+		server.Run();
 	}
 }

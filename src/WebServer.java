@@ -17,7 +17,7 @@ public class WebServer {
 	 */
 	public WebServer(ConfigFile i_ConfigFile) {
 		HashMap<String, String> configParams = i_ConfigFile.GetConfigurationParameters();
-		m_Port = Integer.valueOf(configParams.get("port"));
+		m_Port = Integer.parseInt(configParams.get("port"));
 		m_DefaultPage = configParams.get("defaultPage");
 		m_Root = configParams.get("root");
 		m_MaxThreads = Integer.valueOf(configParams.get("maxThreads"));
@@ -32,6 +32,7 @@ public class WebServer {
 			if (connection == null) { 
 				continue;
 			} else {
+				System.out.println("Recieved a new HTTP request");
 				HTTPRequest request = new HTTPRequest(connection);
 				Thread thread = new Thread(request);
 				m_ThreadPool.AddThread(thread);
