@@ -28,6 +28,8 @@ final class HTTPRequest implements Runnable
 
 	private void processRequest() throws Exception
 	{
+		
+		DataInputStream is = new DataInputStream(socket.getInputStream());
 		DataOutputStream os = new DataOutputStream(socket.getOutputStream());
 		//Get the source IP
 		String sourceIP = socket.getInetAddress().getHostAddress();

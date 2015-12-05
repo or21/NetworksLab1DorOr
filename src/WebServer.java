@@ -36,7 +36,6 @@ public class WebServer {
 				HTTPRequest request = new HTTPRequest(connection);
 				Thread thread = new Thread(request);
 				thread.start();
-//				m_ThreadPool.AddThread(thread);
 			}
 		}
 	}
