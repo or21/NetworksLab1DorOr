@@ -40,10 +40,10 @@ public final class HTTPRequest implements Runnable
 		BufferedReader inputStream = new BufferedReader(new InputStreamReader(m_Socket.getInputStream()));
 		while((inputMessage = inputStream.readLine()) != null && inputMessage.length() > 0) {
 			System.out.println(inputMessage);
-			requestHeaders.append(inputMessage).append("\r\n");
+			requestHeaders.append(inputMessage).append(CRLF);
 		}
 		System.out.println();
-		requestHeaders.append("\r\n");
+		requestHeaders.append(CRLF);
 		return requestHeaders.toString();
 	}
 }
