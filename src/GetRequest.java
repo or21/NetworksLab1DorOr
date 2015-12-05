@@ -19,14 +19,14 @@ public class GetRequest implements ClientRequest {
 	private HashMap<String, String> m_Headers;
 	private String m_Content;
 
-	public GetRequest(String[] firstHeader, String[] copyOfRange) {
-		m_Url = firstHeader[1];
+	public GetRequest(String[] i_FirstHeaderRow, String[] i_AllOtherHeaders) {
+		m_Url = i_FirstHeaderRow[1];
 		if (m_Url.equals("/")) {
 			m_Type = "text/html";
 		} else { // TODO: Dor. This doesn't care for parameters
-			int i = firstHeader[1].lastIndexOf('.');
+			int i = i_FirstHeaderRow[1].lastIndexOf('.');
 			if (i > 0) {
-				String extension = firstHeader[1].substring(i + 1);
+				String extension = i_FirstHeaderRow[1].substring(i + 1);
 				m_Type = extension.equals("html") ? "text/html" :
 					extension.equals("ico") ? "icon" : // TODO: Dor. Place an icon, so that you can send it back, and not get a file not found...
 						"image";

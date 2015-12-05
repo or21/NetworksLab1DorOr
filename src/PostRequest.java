@@ -2,7 +2,7 @@ import java.io.OutputStream;
 
 public class PostRequest implements ClientRequest {
 
-	public PostRequest(String[] firstHeader, String[] copyOfRange) {
+	public PostRequest(String[] i_FirstHeaderRow, String[] i_AllOtherHeaders) {
 		// TODO Auto-generated constructor stub
 	}
 

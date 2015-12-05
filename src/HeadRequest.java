@@ -2,7 +2,7 @@ import java.io.OutputStream;
 
 public class HeadRequest implements ClientRequest {
 
-	public HeadRequest(String[] firstHeader, String[] copyOfRange) {
+	public HeadRequest(String[] i_FirstHeaderRow, String[] i_AllOtherHeaders) {
 		// TODO Auto-generated constructor stub
 	}
 

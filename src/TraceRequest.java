@@ -2,7 +2,7 @@ import java.io.OutputStream;
 
 public class TraceRequest implements ClientRequest {
 
-	public TraceRequest(String[] firstHeader, String[] copyOfRange) {
+	public TraceRequest(String[] i_FirstHeaderRow, String[] i_AllOtherHeaders) {
 		// TODO Auto-generated constructor stub
 	}
 
