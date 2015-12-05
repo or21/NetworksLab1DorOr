@@ -28,19 +28,20 @@ public class WebServer {
 	public void Run() {
 		while (true)
 		{
-			Socket connection = catchConnection();
+			Socket connection = waitForConnection();
 			if (connection == null) { 
 				continue;
 			} else {
 				System.out.println("Recieved a new HTTP request");
 				HTTPRequest request = new HTTPRequest(connection);
 				Thread thread = new Thread(request);
-				m_ThreadPool.AddThread(thread);
+				thread.start();
+//				m_ThreadPool.AddThread(thread);
 			}
 		}
 	}
 
-	private Socket catchConnection() {
+	private Socket waitForConnection() {
 		try {
 			return m_ServerSocket.accept();
 		} catch (IOException e) {
