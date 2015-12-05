@@ -22,7 +22,7 @@ public class WebServer {
 		m_Root = configParams.get("root");
 		m_MaxThreads = Integer.valueOf(configParams.get("maxThreads"));
 		m_ThreadPool = new ThreadPool(m_MaxThreads);
-		m_ServerSocket = createServerSocket(m_Port);
+		m_ServerSocket = createServerSocket();
 	}
 	
 	public void Run() {
@@ -50,7 +50,7 @@ public class WebServer {
 		return null;
 	}
 
-	private ServerSocket createServerSocket(int m_Port2) {
+	private ServerSocket createServerSocket() {
 		try {
 			return new ServerSocket(m_Port);
 		} catch (IOException e) {

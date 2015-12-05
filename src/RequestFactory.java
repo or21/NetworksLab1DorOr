@@ -7,7 +7,7 @@ public class RequestFactory {
 	final static String TRACE_METHOD = "TRACE";
 
 	public static ClientRequest CreateRequest(String i_RequestInput) {
-		String[] allHeaders = i_RequestInput.split(HTTPRequest.CRLF);
+		String[] allHeaders = i_RequestInput.split("\r");
 		String[] firstHeader = allHeaders[0].split("[ ]+");
 		if (firstHeader.length != 3) { // TODO: Or. Check here if url (firstheader[1]) contains ".."
 			return new BadRequest();

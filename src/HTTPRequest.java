@@ -3,7 +3,7 @@ import java.net.* ;
 
 public final class HTTPRequest implements Runnable
 {
-	public final static String CRLF = "\r\n";
+	public final static String CRLF = "\n";
 		
 	Socket m_Socket;
 
@@ -30,21 +30,21 @@ public final class HTTPRequest implements Runnable
 	{
 		String request = readRequestFromClient();
 		ClientRequest clientRequest = RequestFactory.CreateRequest(request);
-		clientRequest.ReturnResponse(m_Socket.getOutputStream());				
+		clientRequest.ReturnResponse(m_Socket.getOutputStream());
+		m_Socket.close();
 	}
 
 	private String readRequestFromClient() throws IOException {
 		String inputMessage;
 		StringBuilder requestHeaders = new StringBuilder();
 		BufferedReader inputStream = new BufferedReader(new InputStreamReader(m_Socket.getInputStream()));
-		
+		// TODO: Dor. This needs to change to reading bytes
 		while((inputMessage = inputStream.readLine()) != null && inputMessage.length() > 0) {
 			System.out.println(inputMessage);
-			requestHeaders.append(inputMessage);
+			requestHeaders.append(inputMessage).append("\r\n");
 		}
 		System.out.println();
-		
+		requestHeaders.append("\r\n");
 		return requestHeaders.toString();
 	}
-
 }
