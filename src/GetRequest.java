@@ -15,7 +15,7 @@ public class GetRequest implements ClientRequest {
 	private String m_Type;
 	private String m_Url;
 	private final String m_StaticFilesPath = "static/";
-	private final String m_404NotFoundPath = "static/html/404NotFound.html";
+	private final String m_404NotFoundPath = "static/html/404notfound.html";
 	private HashMap<String, String> m_Headers;
 	private String m_Content;
 
@@ -41,10 +41,13 @@ public class GetRequest implements ClientRequest {
 		toReturn = (m_Url.equals("/") ? 
 				new File(m_StaticFilesPath + "html/index.html") : 
 					new File(m_StaticFilesPath + "html/" + m_Url));
-		m_Content = new String(!toReturn.exists() ? 
-				readFile(new File(m_404NotFoundPath)) : 
-					readFile(toReturn));
-
+		if (!toReturn.exists()) {
+			m_Type = "text/html";
+			m_Content = new String(readFile(new File(m_404NotFoundPath)));
+		} else {
+			m_Content = new String(readFile(toReturn));			
+		}
+		
 		StringBuilder responseString = new StringBuilder("HTTP/1.1 200 OK\r\n");
 		m_Headers = setupHeaders(m_Content);
 
