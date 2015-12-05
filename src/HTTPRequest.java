@@ -5,12 +5,12 @@ import java.util.* ;
 final class HTTPRequest implements Runnable
 {
 	final static String CRLF = "\r\n";
-	Socket socket;
+	Socket m_Socket;
 
 	// Constructor
-	public HTTPRequest(Socket socket)
+	public HTTPRequest(Socket i_Socket)
 	{
-		this.socket = socket;
+		this.m_Socket = i_Socket;
 	}
 
 	// Implement the run() method of the Runnable interface.
@@ -28,11 +28,17 @@ final class HTTPRequest implements Runnable
 
 	private void processRequest() throws Exception
 	{
+		String request = readRequestFromClient();
+		String[] requestHeaders = request.split(CRLF);
+		// 1. GET Request
+		// 2. POST Request
+		// 3. HEAD Request
+		// 4. TRACE Request
+		// 5. Unsupported
 		
-		DataInputStream is = new DataInputStream(socket.getInputStream());
-		DataOutputStream os = new DataOutputStream(socket.getOutputStream());
+		DataOutputStream os = new DataOutputStream(m_Socket.getOutputStream());
 		//Get the source IP
-		String sourceIP = socket.getInetAddress().getHostAddress();
+		String sourceIP = m_Socket.getInetAddress().getHostAddress();
 
 		// Construct the response message.
 		String statusLine = "HTTP/1.0 200 OK" + CRLF;
@@ -60,7 +66,21 @@ final class HTTPRequest implements Runnable
 
 		// Close streams and socket.
 		os.close();
-		socket.close();
+		m_Socket.close();
+	}
+
+	private String readRequestFromClient() throws IOException {
+		String inputMessage;
+		StringBuilder requestHeaders = new StringBuilder();
+		BufferedReader inputStream = new BufferedReader(new InputStreamReader(m_Socket.getInputStream()));
+		
+		while((inputMessage = inputStream.readLine()) != null && inputMessage.length() > 0) {
+			System.out.println(inputMessage);
+			requestHeaders.append(inputMessage);
+		}
+		System.out.println();
+		
+		return requestHeaders.toString();
 	}
 
 }
