@@ -38,7 +38,6 @@ public final class HTTPRequest implements Runnable
 		String inputMessage;
 		StringBuilder requestHeaders = new StringBuilder();
 		BufferedReader inputStream = new BufferedReader(new InputStreamReader(m_Socket.getInputStream()));
-		// TODO: Dor. This needs to change to reading bytes
 		while((inputMessage = inputStream.readLine()) != null && inputMessage.length() > 0) {
 			System.out.println(inputMessage);
 			requestHeaders.append(inputMessage).append("\r\n");
