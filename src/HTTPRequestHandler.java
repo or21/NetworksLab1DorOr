@@ -1,7 +1,7 @@
 import java.io.* ;
 import java.net.* ;
 
-public final class HTTPRequest implements Runnable
+public final class HTTPRequestHandler implements Runnable
 {
 	public final static String CRLF = "\r\n";
 		
@@ -9,7 +9,7 @@ public final class HTTPRequest implements Runnable
 	Runnable m_Callback;
 
 	// Constructor
-	public HTTPRequest(Socket i_Socket, Runnable i_Callback)
+	public HTTPRequestHandler(Socket i_Socket, Runnable i_Callback)
 	{
 		this.m_Socket = i_Socket;
 		this.m_Callback = i_Callback;

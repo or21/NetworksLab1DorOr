@@ -12,8 +12,10 @@ public class RequestFactory {
 	public static ClientRequest CreateRequest(String i_Request) {
 		String[] allHeaders = i_Request.split("\r");
 		String[] firstHeader = allHeaders[0].split("[ ]+");
-		if (firstHeader.length != 3) { // TODO: Or. Check here if url (firstheader[1]) contains ".."
+		if (firstHeader.length != 3) { 
 			return new BadRequest();
+//		} else if (!checkValidPath()) {// TODO: Or. Check here if url (firstheader[1]) contains ".."
+//			return new ForbiddenRequest();
 		} else {
 			eMethods caseSwitch = eMethods.valueOf(firstHeader[0]);
 			switch(caseSwitch) {
@@ -34,5 +36,12 @@ public class RequestFactory {
 				}
 			}
 		}
+	}
+
+	private static boolean checkValidPath() {
+		// TODO Auto-generated method stub
+		// if start with slash
+		// 		isValidPath
+		return false;
 	}
 }

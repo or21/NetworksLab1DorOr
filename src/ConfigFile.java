@@ -36,7 +36,7 @@ public class ConfigFile implements IParser {
 	public void Parse(String i_Filename) {
 		m_ConfigDictionary = new HashMap<>();
 		byte[] contentAsByteArray = readFile(new File(i_Filename));
-		String[] content = new String(contentAsByteArray).split("\n");
+		String[] content = new String(contentAsByteArray).split("\r\n");
 		for(String line : content) {
 			String[] keyValuePair = line.split("=");
 			m_ConfigDictionary.put(keyValuePair[0], keyValuePair[1]);
@@ -45,9 +45,10 @@ public class ConfigFile implements IParser {
 
 	private byte[] readFile(File i_File)
 	{
+		FileInputStream fis = null;
 		try
 		{
-			FileInputStream fis = new FileInputStream(i_File);
+			fis = new FileInputStream(i_File);
 			byte[] bFile = new byte[(int)i_File.length()];
 			// read until the end of the stream.
 			while(fis.available() != 0)
@@ -65,6 +66,15 @@ public class ConfigFile implements IParser {
 		{
 			System.out.println("IOException");
 			return null;
+		}
+		finally {
+			if (fis != null) {
+				try {
+					fis.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 	}
 	

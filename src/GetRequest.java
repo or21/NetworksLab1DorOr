@@ -3,47 +3,40 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.HashMap;
 
-public class GetRequest implements ClientRequest {
-
-	private String m_Type;
-	private String m_Url;
-	private final String m_StaticFilesPath = "static/";
-	private HashMap<String, String> m_Headers;
-	private String m_Content;
+public class GetRequest extends HeadRequest {
+	
+	protected HashMap<String, String> m_Params; 
 
 	public GetRequest(String[] i_FirstHeaderRow, String[] i_AllOtherHeaders) {
-		m_Url = i_FirstHeaderRow[1];
-		if (m_Url.equals("/")) {
-			m_Type = "text/html";
-		} else { // TODO: Dor. This doesn't care for parameters
-			int i = i_FirstHeaderRow[1].lastIndexOf('.');
-			if (i > 0) {
-				String extension = i_FirstHeaderRow[1].substring(i + 1);
-				m_Type = extension.equals("html") ? "text/html" :
-					extension.equals("ico") ? "icon" : // TODO: Dor. Place an icon, so that you can send it back, and not get a file not found...
-						"image";
-			}
+		super(i_FirstHeaderRow, i_AllOtherHeaders);
+		
+		if (m_Url.contains("?")) {
+			parseParams(m_Url.substring(m_Url.indexOf("?") + 1));
+		}
+	}
+
+	protected void parseParams(String i_ParamsString) {
+		String[] parametersArray = i_ParamsString.split("&");
+		m_Params = new HashMap<String, String>();
+		
+		for (String string : parametersArray) {
+			String[] keyValuePair = string.split("=");
+			m_Params.put(keyValuePair[0], keyValuePair[1]);
 		}
 	}
 
 	@Override
 	public void ReturnResponse(OutputStream i_OutputStream) {
-		// TODO Auto-generated method stub
-		File toReturn;
-		toReturn = (m_Url.equals("/") ? 
-				new File(m_StaticFilesPath + "html/index.html") : 
+		File fileToReturn;
+		fileToReturn = (m_Url.equals(ConfigFile.GetInstance().GetConfigurationParameters().get("root")) ? 
+				new File(m_StaticFilesPath + "html/" + ConfigFile.GetInstance().GetConfigurationParameters().get("defaultPage")) : 
 					new File(m_StaticFilesPath + "html/" + m_Url));
-		if (!toReturn.exists()) {
+		if (!fileToReturn.exists()) {
 			new NotFoundRequest().ReturnResponse(i_OutputStream);
 		} else {
-			m_Content = new String(Tools.ReadFile(toReturn, m_Type));			
+			m_Content = new String(Tools.ReadFile(fileToReturn, m_Type));			
 
-			StringBuilder responseString = new StringBuilder("HTTP/1.1 200 OK\r\n");
-			m_Headers = Tools.SetupHeaders(m_Content, m_Type);
-
-			for(String header : m_Headers.keySet()) {
-				responseString.append(header).append(": ").append(m_Headers.get(header)).append("\r\n");
-			}
+			StringBuilder responseString = new StringBuilder(createHeaders());
 
 			System.out.println(responseString);
 			responseString.append("\r\n").append(m_Content);
@@ -53,7 +46,6 @@ public class GetRequest implements ClientRequest {
 				i_OutputStream.flush();
 				i_OutputStream.close();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}

@@ -6,7 +6,6 @@ import java.util.HashMap;
 public class WebServer {
 
 	private int m_Port, m_MaxThreads;
-	private String m_Root, m_DefaultPage;
 	private ThreadPool m_ThreadPool;
 	private ServerSocket m_ServerSocket;
 
@@ -17,8 +16,6 @@ public class WebServer {
 	public WebServer(ConfigFile i_ConfigFile) {
 		HashMap<String, String> configParams = i_ConfigFile.GetConfigurationParameters();
 		m_Port = Integer.parseInt(configParams.get("port"));
-		m_DefaultPage = configParams.get("defaultPage");
-		m_Root = configParams.get("root");
 		m_MaxThreads = Integer.valueOf(configParams.get("maxThreads"));
 		m_ThreadPool = new ThreadPool(m_MaxThreads);
 		m_ServerSocket = createServerSocket();
@@ -32,7 +29,7 @@ public class WebServer {
 				continue;
 			} else {
 				System.out.println("Recieved a new HTTP request");
-				HTTPRequest request = new HTTPRequest(connection, new Runnable() {
+				HTTPRequestHandler request = new HTTPRequestHandler(connection, new Runnable() {
 
 					@Override
 					public void run() {
