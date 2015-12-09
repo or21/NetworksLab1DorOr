@@ -7,7 +7,7 @@ public class ForbiddenRequest implements ClientRequest {
 	
 	private final String m_Type = "text/html";
 	private final String m_ForbiddenRequestPath = "static/html/403ForbiddenRequest.html";
-	private final String m_Header = "HTTP/1.1 400 Forbidden\r\n";
+	private final String m_Header = "HTTP/1.1 403 Forbidden\r\n";
 
 	@Override
 	public void ReturnResponse(OutputStream i_OutputStream) {
@@ -33,5 +33,4 @@ public class ForbiddenRequest implements ClientRequest {
 			e.printStackTrace();
 		}
 	}
-
 }
