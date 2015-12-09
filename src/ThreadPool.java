@@ -32,7 +32,7 @@ public class ThreadPool {
 				Thread currentThread = m_WaitingRequests.get(0);
 				m_WaitingRequests.remove(0);
 				m_RunningRequests.add(currentThread);
-				System.out.println("Starts new thread: " + m_RunningRequests.size());
+				System.out.println("Starts new thread: " + m_RunningRequests.size() + "\n");
 				currentThread.start();
 			}
 		}

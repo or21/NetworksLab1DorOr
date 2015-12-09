@@ -8,7 +8,6 @@ public class GetRequest implements ClientRequest {
 	private String m_Type;
 	private String m_Url;
 	private final String m_StaticFilesPath = "static/";
-	private final String m_404NotFoundPath = "static/html/404notfound.html";
 	private HashMap<String, String> m_Headers;
 	private String m_Content;
 
@@ -35,29 +34,28 @@ public class GetRequest implements ClientRequest {
 				new File(m_StaticFilesPath + "html/index.html") : 
 					new File(m_StaticFilesPath + "html/" + m_Url));
 		if (!toReturn.exists()) {
-			m_Type = "text/html";
-			m_Content = new String(Tools.ReadFile(new File(m_404NotFoundPath), m_Type));
+			new NotFoundRequest().ReturnResponse(i_OutputStream);
 		} else {
 			m_Content = new String(Tools.ReadFile(toReturn, m_Type));			
-		}
-		
-		StringBuilder responseString = new StringBuilder("HTTP/1.1 200 OK\r\n");
-		m_Headers = Tools.SetupHeaders(m_Content, m_Type);
 
-		for(String header : m_Headers.keySet()) {
-			responseString.append(header).append(": ").append(m_Headers.get(header)).append("\r\n");
-		}
-		
-		System.out.println(responseString);
-		responseString.append("\r\n").append(m_Content);
-		
-		try {
-			i_OutputStream.write(responseString.toString().getBytes());
-			i_OutputStream.flush();
-			i_OutputStream.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			StringBuilder responseString = new StringBuilder("HTTP/1.1 200 OK\r\n");
+			m_Headers = Tools.SetupHeaders(m_Content, m_Type);
+
+			for(String header : m_Headers.keySet()) {
+				responseString.append(header).append(": ").append(m_Headers.get(header)).append("\r\n");
+			}
+
+			System.out.println(responseString);
+			responseString.append("\r\n").append(m_Content);
+
+			try {
+				i_OutputStream.write(responseString.toString().getBytes());
+				i_OutputStream.flush();
+				i_OutputStream.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 }
