@@ -56,14 +56,29 @@ public class HeadRequest implements ClientRequest {
 
 		return responseString.toString();
 	}
+	
+	protected File openFileAccordingToUrl(String i_Url) {
+		return (m_Url.equals(m_ConfigFileRootPath) ? 
+				new File(m_StaticFilesPath + determineFileType() + m_ConfigFileDefaultPage) : // TODO: This needs to change to deal with all filetypes 
+					new File(m_StaticFilesPath + determineFileType() + m_Url));
+	}
+	
+	private String determineFileType() {
+		if (m_Type.equals(TYPE_HTML)) {
+			return PATH_HTML;
+		} else if (m_Type.equals(TYPE_ICON)) {
+			return PATH_ICON;
+		} else if (m_Type.startsWith(TYPE_IMAGE)) {
+			return PATH_IMAGE;
+		} else {
+			throw new IllegalStateException("Requesting unknown filetypes for us to handle");
+		}
+	}
 
 	@Override
 	public void ReturnResponse(OutputStream i_OutputStream) {
-		// TODO Auto-generated method stub
 		File fileToReturn;
-		fileToReturn = (m_Url.equals(m_ConfigFileRootPath) ? 
-				new File(m_StaticFilesPath + PATH_HTML + m_ConfigFileDefaultPage) : // TODO: This needs to change to deal with all filetypes 
-					new File(m_StaticFilesPath + PATH_HTML + m_Url));
+		fileToReturn = openFileAccordingToUrl(m_Url);
 		if (!fileToReturn.exists()) {
 			new NotFoundRequest().ReturnResponse(i_OutputStream);
 		} else {
