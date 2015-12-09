@@ -59,7 +59,7 @@ public class HeadRequest implements ClientRequest {
 	
 	protected File openFileAccordingToUrl(String i_Url) {
 		return (m_Url.equals(m_ConfigFileRootPath) ? 
-				new File(m_StaticFilesPath + determineFileType() + m_ConfigFileDefaultPage) : // TODO: This needs to change to deal with all filetypes 
+				new File(m_StaticFilesPath + PATH_HTML + m_ConfigFileDefaultPage) : 
 					new File(m_StaticFilesPath + determineFileType() + m_Url));
 	}
 	
