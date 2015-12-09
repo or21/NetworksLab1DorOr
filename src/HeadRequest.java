@@ -21,7 +21,7 @@ public class HeadRequest implements ClientRequest {
 	protected String m_Url;
 	protected final String m_StaticFilesPath = "static/";
 	protected HashMap<String, String> m_Headers;
-	protected String m_Content;
+	protected byte[] m_Content;
 	protected String m_ConfigFileRootPath;
 	protected String m_ConfigFileDefaultPage;
 	protected String m_Extension;
@@ -82,9 +82,9 @@ public class HeadRequest implements ClientRequest {
 		if (!fileToReturn.exists()) {
 			new NotFoundRequest().ReturnResponse(i_OutputStream);
 		} else {
-			m_Content = new String(Tools.ReadFile(fileToReturn, m_Type));			
+			m_Content = Tools.ReadFile(fileToReturn, m_Type);			
 			String headersToReturn = createHeaders();
-
+			
 			System.out.println(headersToReturn);
 
 			try {

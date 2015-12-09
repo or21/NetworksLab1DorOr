@@ -12,10 +12,10 @@ import javax.imageio.ImageIO;
 
 public class Tools {
 
-	public static HashMap<String, String> SetupHeaders(String i_Content, String i_Type) {
+	public static HashMap<String, String> SetupHeaders(byte[] i_Content, String i_Type) {
 		HashMap<String, String> headers = new HashMap<>();
 		headers.put("Content-Type", i_Type);
-		headers.put("Content-Length", String.valueOf(i_Content.length()));
+		headers.put("Content-Length", String.valueOf(i_Content.length));
 		return headers;
 	}
 	
@@ -33,17 +33,14 @@ public class Tools {
 	// TODO: Or. This doesn't work for images. Try to figure out why
 	public static byte[] ReadFile(File i_File, String i_Type)
 	{
+		FileInputStream fis = null;
 		try
 		{
 			byte[] bFile = new byte[(int)i_File.length()];
-			if (i_Type.equals("text/html") || i_Type.equals("icon")) {
-				FileInputStream fis = new FileInputStream(i_File);
-				while(fis.available() != 0)
-				{
-					fis.read(bFile, 0, bFile.length);
-				}
-			} else {
-				bFile = imageToByteArray(i_File);
+			fis = new FileInputStream(i_File);
+			while(fis.available() != 0)
+			{
+				fis.read(bFile, 0, bFile.length);
 			}
 			return bFile;
 		}
@@ -56,6 +53,14 @@ public class Tools {
 		{
 			System.out.println("IOException");
 			return null;
+		} finally {
+			if (fis != null) {
+				try {
+					fis.close();
+				} catch (IOException e) {
+					
+				}
+			}
 		}
 	}
 }

@@ -30,19 +30,21 @@ public class GetRequest extends HeadRequest {
 		File fileToReturn;
 		fileToReturn = (m_Url.equals(ConfigFile.GetInstance().GetConfigurationParameters().get("root")) ? 
 				new File(m_StaticFilesPath + "html/" + ConfigFile.GetInstance().GetConfigurationParameters().get("defaultPage")) : 
-					new File(m_StaticFilesPath + "html/" + m_Url));
+					new File(m_StaticFilesPath + "images/" + m_Url));
 		if (!fileToReturn.exists()) {
 			new NotFoundRequest().ReturnResponse(i_OutputStream);
 		} else {
-			m_Content = new String(Tools.ReadFile(fileToReturn, m_Type));			
-
+			m_Content = Tools.ReadFile(fileToReturn, m_Type);
+			System.out.println(fileToReturn.getAbsolutePath());
 			StringBuilder responseString = new StringBuilder(createHeaders());
-
+			
 			System.out.println(responseString);
-			responseString.append("\r\n").append(m_Content);
+			
+			responseString.append(CLRF);
 
 			try {
 				i_OutputStream.write(responseString.toString().getBytes());
+				i_OutputStream.write(m_Content);
 				i_OutputStream.flush();
 				i_OutputStream.close();
 			} catch (IOException e) {

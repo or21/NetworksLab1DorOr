@@ -22,12 +22,12 @@ public class TraceRequest extends HeadRequest {
 		if (!fileToReturn.exists()) {
 			new NotFoundRequest().ReturnResponse(i_OutputStream);
 		} else {
-			m_Content = new String(Tools.ReadFile(fileToReturn, m_Type));
+			m_Content = Tools.ReadFile(fileToReturn, m_Type);
 			
 			StringBuilder responseString = new StringBuilder(createHeaders());
 
 			System.out.println(responseString);
-			responseString.append("\r\n").append(m_Content.length()).append("\r\n").append(m_request);
+			responseString.append("\r\n").append(m_Content.length).append("\r\n").append(m_request);
 
 			try {
 				i_OutputStream.write(responseString.toString().getBytes());

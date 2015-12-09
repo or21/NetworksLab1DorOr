@@ -4,7 +4,7 @@ import java.net.* ;
 public final class HTTPRequestHandler implements Runnable
 {
 	public final static String CRLF = "\r\n";
-
+		
 	Socket m_Socket;
 	Runnable m_Callback;
 
@@ -24,11 +24,6 @@ public final class HTTPRequestHandler implements Runnable
 		}
 		catch (Exception e)
 		{
-			try {
-				new InternalServerError().ReturnResponse(m_Socket.getOutputStream());
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			};
 			System.out.println(e);
 		}
 	}

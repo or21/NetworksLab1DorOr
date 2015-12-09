@@ -14,17 +14,18 @@ public class InternalServerError implements ClientRequest {
 		StringBuilder responseString = new StringBuilder();
 		responseString.append(m_Header);
 		
-		String content = new String(Tools.ReadFile(new File(m_InternalErrorPath), m_Type));
+		byte[] content = Tools.ReadFile(new File(m_InternalErrorPath), m_Type);
 		HashMap<String, String> defaultHeaders = Tools.SetupHeaders(content, m_Type);
 		for(String header : defaultHeaders.keySet()) {
 			responseString.append(header).append(": ").append(defaultHeaders.get(header)).append("\r\n");
 		}
 		
 		System.out.println(responseString);
-		responseString.append("\r\n").append(content);
+		responseString.append("\r\n");
 		
 		try {
 			i_OutputStream.write(responseString.toString().getBytes());
+			i_OutputStream.write(content);
 			i_OutputStream.flush();
 			i_OutputStream.close();
 		} catch (IOException e) {
