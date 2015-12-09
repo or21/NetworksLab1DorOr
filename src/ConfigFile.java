@@ -13,6 +13,8 @@ import java.util.HashMap;
 public class ConfigFile implements IParser {
 	
 	public static final String CONFIG_FILE_PATH = "config/config.ini";
+	public static final String CONFIG_FILE_ROOT_KEY = "root";
+	public static final String CONFIG_FILE_DEFAULT_PAGE_KEY = "defaultPage";
 	
 	private HashMap<String, String> m_ConfigDictionary;
 
