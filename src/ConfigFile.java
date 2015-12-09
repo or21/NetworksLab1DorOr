@@ -36,7 +36,7 @@ public class ConfigFile implements IParser {
 	public void Parse(String i_Filename) {
 		m_ConfigDictionary = new HashMap<>();
 		byte[] contentAsByteArray = readFile(new File(i_Filename));
-		String[] content = new String(contentAsByteArray).split("\r\n");
+		String[] content = new String(contentAsByteArray).split("\n");
 		for(String line : content) {
 			String[] keyValuePair = line.split("=");
 			m_ConfigDictionary.put(keyValuePair[0], keyValuePair[1]);

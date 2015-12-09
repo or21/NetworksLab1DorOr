@@ -3,7 +3,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
 
-
 public class WebServer {
 
 	private int m_Port, m_MaxThreads;
@@ -24,7 +23,7 @@ public class WebServer {
 		m_ThreadPool = new ThreadPool(m_MaxThreads);
 		m_ServerSocket = createServerSocket();
 	}
-	
+
 	public void Run() {
 		while (true)
 		{
@@ -33,9 +32,16 @@ public class WebServer {
 				continue;
 			} else {
 				System.out.println("Recieved a new HTTP request");
-				HTTPRequest request = new HTTPRequest(connection);
+				HTTPRequest request = new HTTPRequest(connection, new Runnable() {
+
+					@Override
+					public void run() {
+						onFinishThread();
+					}
+				});
+
 				Thread thread = new Thread(request);
-				thread.start();
+				m_ThreadPool.AddThread(thread);
 			}
 		}
 	}
@@ -58,5 +64,10 @@ public class WebServer {
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	private void onFinishThread() {
+		System.out.println("Thread Finished");
+		m_ThreadPool.Manage();
 	}
 }

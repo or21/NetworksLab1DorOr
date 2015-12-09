@@ -1,14 +1,7 @@
-import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferByte;
-import java.awt.image.WritableRaster;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.HashMap;
-
-import javax.imageio.ImageIO;
 
 public class GetRequest implements ClientRequest {
 
@@ -43,19 +36,21 @@ public class GetRequest implements ClientRequest {
 					new File(m_StaticFilesPath + "html/" + m_Url));
 		if (!toReturn.exists()) {
 			m_Type = "text/html";
-			m_Content = new String(readFile(new File(m_404NotFoundPath)));
+			m_Content = new String(Tools.ReadFile(new File(m_404NotFoundPath), m_Type));
 		} else {
-			m_Content = new String(readFile(toReturn));			
+			m_Content = new String(Tools.ReadFile(toReturn, m_Type));			
 		}
 		
 		StringBuilder responseString = new StringBuilder("HTTP/1.1 200 OK\r\n");
-		m_Headers = setupHeaders(m_Content);
+		m_Headers = Tools.SetupHeaders(m_Content, m_Type);
 
 		for(String header : m_Headers.keySet()) {
 			responseString.append(header).append(": ").append(m_Headers.get(header)).append("\r\n");
 		}
+		
+		System.out.println(responseString);
 		responseString.append("\r\n").append(m_Content);
-
+		
 		try {
 			i_OutputStream.write(responseString.toString().getBytes());
 			i_OutputStream.flush();
@@ -63,46 +58,6 @@ public class GetRequest implements ClientRequest {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
-	}
-
-	private HashMap<String, String> setupHeaders(String i_Content) {
-		HashMap<String, String> headers = new HashMap<>();
-		headers.put("content-type", m_Type);
-		headers.put("content-length", String.valueOf(i_Content.length()));
-		return headers;
-	}
-
-	// TODO: Or. This doesn't work for images. Try to figure out why
-	private byte[] readFile(File i_File)
-	{
-		try
-		{
-			byte[] bFile = new byte[(int)i_File.length()];
-			if (m_Type.equals("text/html") || m_Type.equals("icon")) {
-
-				FileInputStream fis = new FileInputStream(i_File);
-				while(fis.available() != 0)
-				{
-					fis.read(bFile, 0, bFile.length);
-				}
-			} else {
-				BufferedImage image = ImageIO.read(i_File);
-				WritableRaster raster = image.getRaster();
-				DataBufferByte data = (DataBufferByte) raster.getDataBuffer(); 
-				bFile = data.getData();
-			}
-			return bFile;
-		}
-		catch(FileNotFoundException i_FNFE)
-		{
-			System.out.println("File not found");
-			return null;
-		}
-		catch(IOException i_IOE)
-		{
-			System.out.println("IOException");
-			return null;
 		}
 	}
 }
