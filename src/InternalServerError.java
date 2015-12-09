@@ -3,18 +3,18 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.HashMap;
 
-public class ForbiddenRequest implements ClientRequest {
+public class InternalServerError implements ClientRequest {
 	
 	private final String m_Type = "text/html";
-	private final String m_ForbiddenRequestPath = "static/html/403ForbiddenRequest.html";
-	private final String m_Header = "HTTP/1.1 400 Forbidden\r\n";
+	private final String m_InternalErrorPath = "static/html/500InternalError.html";
+	private final String m_Header = "HTTP/1.1 500 Internal Server Error\r\n";
 
 	@Override
 	public void ReturnResponse(OutputStream i_OutputStream) {
 		StringBuilder responseString = new StringBuilder();
 		responseString.append(m_Header);
 		
-		String content = new String(Tools.ReadFile(new File(m_ForbiddenRequestPath), m_Type));
+		String content = new String(Tools.ReadFile(new File(m_InternalErrorPath), m_Type));
 		HashMap<String, String> defaultHeaders = Tools.SetupHeaders(content, m_Type);
 		for(String header : defaultHeaders.keySet()) {
 			responseString.append(header).append(": ").append(defaultHeaders.get(header)).append("\r\n");
@@ -28,9 +28,7 @@ public class ForbiddenRequest implements ClientRequest {
 			i_OutputStream.flush();
 			i_OutputStream.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
-
 }

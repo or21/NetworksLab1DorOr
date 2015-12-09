@@ -47,7 +47,6 @@ public class WebServer {
 		try {
 			return m_ServerSocket.accept();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return null;
@@ -57,7 +56,6 @@ public class WebServer {
 		try {
 			return new ServerSocket(m_Port);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return null;
