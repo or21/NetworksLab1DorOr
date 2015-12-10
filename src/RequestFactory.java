@@ -2,19 +2,12 @@ import java.util.Arrays;
 
 public class RequestFactory {
 
-	public static enum eMethods {
-		GET,
-		POST,
-		HEAD,
-		TRACE
-	}
-
 	public static ClientRequest CreateRequest(String i_Request) {
 		String[] allHeaders = i_Request.split("\r");
 		String[] firstHeader = allHeaders[0].split("[ ]+");
-		if (firstHeader.length != 3) { 
+		if ((firstHeader.length != 3) || (!eSupportedHTTP.isInEnum(firstHeader[2]))){ 
 			return new BadRequest();
-		} else if (!checkValidPath(firstHeader[1])) {// TODO: Or. Check here if url (firstheader[1]) contains ".."
+		} else if (!checkValidPath(firstHeader[1])) {
 			return new ForbiddenRequest();
 		} else {
 			try {
@@ -49,10 +42,42 @@ public class RequestFactory {
 			isValid = false;
 		}
 		
-		if (i_Url.contains("/..")) {
-			isValid = false;
+		return isValid;
+	}
+	
+	public static enum eMethods {
+		GET,
+		POST,
+		HEAD,
+		TRACE
+	}
+	
+	public static enum eSupportedHTTP {
+		ONE("HTTP/1.0"),
+		ONEPOINTONE("HTTP/1.1");
+		
+		private final String value;
+		eSupportedHTTP (String value) { 
+			this.value = value; 
 		}
 		
-		return isValid;
+	    public String getValue() { 
+	    	return value; 
+    	}
+	    
+	    public static boolean isInEnum(String str) {
+	    	boolean isEnumValue = false;
+	    	try {
+	    		for (eSupportedHTTP value : eSupportedHTTP.values()) {
+					if (eSupportedHTTP.valueOf(str).equals(value)) {
+						isEnumValue = true;
+					}
+				}
+	    	}
+	    	catch (Exception e) {
+	    	}
+	    	
+	    	return isEnumValue;
+	    }
 	}
 }

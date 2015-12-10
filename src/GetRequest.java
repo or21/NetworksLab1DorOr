@@ -40,7 +40,7 @@ public class GetRequest extends HeadRequest {
 			
 			System.out.println(responseString);
 			
-			responseString.append(CLRF);
+			responseString.append(CRLF);
 
 			try {
 				i_OutputStream.write(responseString.toString().getBytes());

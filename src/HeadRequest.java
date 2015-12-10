@@ -15,11 +15,11 @@ public class HeadRequest implements ClientRequest {
 	private final String TYPE_IMAGE = "image/";
 	
 	protected final String HTTP_200_OK = "HTTP/1.1 200 OK\r\n";
-	protected final String CLRF = "\r\n";
+	protected final String CRLF = "\r\n";
+	protected final String m_StaticFilesPath = "static/";
 	
 	protected String m_Type;
 	protected String m_Url;
-	protected final String m_StaticFilesPath = "static/";
 	protected HashMap<String, String> m_Headers;
 	protected byte[] m_Content;
 	protected String m_ConfigFileRootPath;
@@ -30,7 +30,7 @@ public class HeadRequest implements ClientRequest {
 		m_ConfigFileRootPath = ConfigFile.GetInstance().GetConfigurationParameters().get(ConfigFile.CONFIG_FILE_ROOT_KEY);
 		m_ConfigFileDefaultPage = ConfigFile.GetInstance().GetConfigurationParameters().get(ConfigFile.CONFIG_FILE_DEFAULT_PAGE_KEY);
 		
-		m_Url = i_FirstHeaderRow[1];
+		m_Url = i_FirstHeaderRow[1].replace("/../", "/");
 
 		if (m_Url.equals(m_ConfigFileRootPath)) {
 			m_Type = TYPE_HTML;
@@ -39,9 +39,8 @@ public class HeadRequest implements ClientRequest {
 			if (i > 0) {
 				int substringTo = m_Url.contains("?") ? m_Url.indexOf("?") : m_Url.length();
 				m_Extension = m_Url.substring(i + 1, substringTo);
-				m_Type = m_Extension.equals(HTML) ? TYPE_HTML :
-					m_Extension.equals(ICON) ? TYPE_ICON : // TODO: Dor. Place an icon, so that you can send it back, and not get a file not found...
-						TYPE_IMAGE + m_Extension;
+				m_Type = (m_Extension.equals(HTML) || m_Extension.equals(m_ConfigFileRootPath)) ? TYPE_HTML :
+					m_Extension.equals(ICON) ? TYPE_ICON : TYPE_IMAGE + m_Extension;
 			}
 		}
 	}
@@ -51,7 +50,7 @@ public class HeadRequest implements ClientRequest {
 		m_Headers = Tools.SetupHeaders(m_Content, m_Type);
 
 		for(String header : m_Headers.keySet()) {
-			responseString.append(header).append(": ").append(m_Headers.get(header)).append(CLRF);
+			responseString.append(header).append(": ").append(m_Headers.get(header)).append(CRLF);
 		}
 
 		return responseString.toString();
@@ -92,7 +91,6 @@ public class HeadRequest implements ClientRequest {
 				i_OutputStream.flush();
 				i_OutputStream.close();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}

@@ -22,6 +22,7 @@ public class WebServer {
 	}
 
 	public void Run() {
+		System.out.println("Listening on port: " + m_Port);
 		while (true)
 		{
 			Socket connection = waitForConnection();
