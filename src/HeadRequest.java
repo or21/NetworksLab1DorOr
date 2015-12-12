@@ -1,11 +1,12 @@
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.util.HashMap;
 
 public class HeadRequest implements IClientRequest {
-	
+
 	private final String HTML = "html";
 	private final String JPG = "jpg";
 	private final String GIF = "gif";
@@ -20,11 +21,11 @@ public class HeadRequest implements IClientRequest {
 	private final String TYPE_ICON = "icon";
 	private final String TYPE_IMAGE = "image/";
 	private final String TYPE_OCTET = "application/octet";
-	
+
 	protected final String HTTP_200_OK = "HTTP/1.1 200 OK\r\n";
 	protected final String CRLF = "\r\n";
 	protected final String m_StaticFilesPath = "static/";
-	
+
 	protected String m_Type;
 	protected String m_Url;
 	protected HashMap<String, String> m_Headers;
@@ -38,7 +39,7 @@ public class HeadRequest implements IClientRequest {
 		this.m_Socket = i_Socket;
 		m_ConfigFileRootPath = ConfigFile.GetInstance().GetConfigurationParameters().get(ConfigFile.CONFIG_FILE_ROOT_KEY);
 		m_ConfigFileDefaultPage = ConfigFile.GetInstance().GetConfigurationParameters().get(ConfigFile.CONFIG_FILE_DEFAULT_PAGE_KEY);
-		
+
 		m_Url = i_FirstHeaderRow[1].replace("/../", "/");
 		m_Url = i_FirstHeaderRow[1].replace("/..", "");
 
@@ -74,7 +75,6 @@ public class HeadRequest implements IClientRequest {
 
 	protected String createHeaders() {
 		StringBuilder responseString = new StringBuilder(HTTP_200_OK);
-		m_Headers = Tools.SetupResponseHeaders(m_Content, m_Type);
 
 		for(String header : m_Headers.keySet()) {
 			responseString.append(header).append(": ").append(m_Headers.get(header)).append(CRLF);
@@ -82,13 +82,13 @@ public class HeadRequest implements IClientRequest {
 
 		return responseString.toString();
 	}
-	
+
 	protected File openFileAccordingToUrl(String i_Url) {
 		return (m_Url.equals(m_ConfigFileRootPath) ? 
 				new File(m_StaticFilesPath + PATH_HTML + m_ConfigFileDefaultPage) : 
 					new File(m_StaticFilesPath + determineFileType() + m_Url));
 	}
-	
+
 	private String determineFileType() {
 		if (m_Type.equals(TYPE_HTML)) {
 			return PATH_HTML;
@@ -103,21 +103,68 @@ public class HeadRequest implements IClientRequest {
 
 	@Override
 	public void ReturnResponse() throws IOException {
-		OutputStream outputStream = m_Socket.getOutputStream();
 		File fileToReturn;
 		fileToReturn = openFileAccordingToUrl(m_Url);
+
 		if (!fileToReturn.exists()) {
 			new NotFoundRequest(m_Socket).ReturnResponse();
 		} else {
-			m_Content = Tools.ReadFile(fileToReturn, m_Type);			
-			String headersToReturn = createHeaders();
-			
-			System.out.println(headersToReturn);
+			OutputStream outputStream = m_Socket.getOutputStream();
+			if (m_Headers.containsKey("chunked") && m_Headers.get("chunked").equals("yes")) {
+				m_Headers = Tools.SetupChunkedResponseHeaders(m_Type);
+				String headersToReturn = createHeaders();
+				returnChunked(outputStream, fileToReturn, headersToReturn);
+			}
+			else {
+				m_Content = Tools.ReadFile(fileToReturn, m_Type);	
+				m_Headers = Tools.SetupResponseHeaders(m_Content, m_Type);
+				String headersToReturn = createHeaders();
+				System.out.println(headersToReturn);
 
+				try {
+					outputStream.write(headersToReturn.getBytes());
+					outputStream.flush();
+					outputStream.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+
+	protected void returnChunked(OutputStream i_OutputStream, File i_FileToReturn, String i_HeadersToReturn) {
+		FileInputStream fis = null;
+		int chunkedSize = 30;
+		try
+		{
+			i_OutputStream.write(i_HeadersToReturn.getBytes());
+			i_OutputStream.flush();
+			
+			byte[] bFile = new byte[chunkedSize];
+			fis = new FileInputStream(i_FileToReturn);
+			while(fis.available() != 0)
+			{
+				fis.read(bFile, 0, bFile.length);
+				try {
+					i_OutputStream.write(bFile);
+					i_OutputStream.flush();
+					
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		catch (IOException ioe) {
 			try {
-				outputStream.write(headersToReturn.getBytes());
-				outputStream.flush();
-				outputStream.close();
+				new InternalServerError(m_Socket).ReturnResponse();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		finally {
+			try {
+				i_OutputStream.flush();
+				i_OutputStream.close();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

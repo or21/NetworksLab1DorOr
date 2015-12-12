@@ -39,6 +39,7 @@ public class GetRequest extends HeadRequest {
 			new NotFoundRequest(m_Socket).ReturnResponse();
 		} else {
 			m_Content = Tools.ReadFile(fileToReturn, m_Type);
+			m_Headers = Tools.SetupResponseHeaders(m_Content, m_Type);
 			System.out.println(fileToReturn.getAbsolutePath());
 			StringBuilder responseString = new StringBuilder(createHeaders());
 

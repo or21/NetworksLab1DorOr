@@ -25,6 +25,7 @@ public class ThreadPool {
 			for (int i = 0; i < m_RunningRequests.size(); i++) {
 				if ((m_RunningRequests.get(i) != null) && (m_RunningRequests.get(i).getState() == Thread.State.TERMINATED)) { 
 					m_RunningRequests.remove(i);
+					i--;
 				}
 			}
 

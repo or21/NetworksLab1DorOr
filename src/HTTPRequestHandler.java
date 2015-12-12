@@ -5,8 +5,8 @@ public final class HTTPRequestHandler implements Runnable
 {
 	public final static String CRLF = "\r\n";
 		
-	Socket m_Socket;
-	Runnable m_Callback;
+	private Socket m_Socket;
+	private Runnable m_Callback;
 	
 	// Constructor
 	public HTTPRequestHandler(Socket i_Socket, Runnable i_Callback)
@@ -73,6 +73,11 @@ public final class HTTPRequestHandler implements Runnable
         }
                 
         System.out.println(requestHeaders);
+        System.out.println();
 		return requestHeaders.toString();
+	}
+	
+	public Socket getSocket() {
+		return m_Socket;
 	}
 }

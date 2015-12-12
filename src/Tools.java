@@ -57,4 +57,11 @@ public class Tools {
 			}
 		}
 	}
+
+	public static HashMap<String, String> SetupChunkedResponseHeaders(String i_Type) {
+		HashMap<String, String> headers = new HashMap<>();
+		headers.put("Content-Type", i_Type);
+		headers.put("Transfer-Encoding", "chunked");
+		return headers;
+	}
 }
