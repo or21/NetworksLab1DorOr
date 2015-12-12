@@ -1,3 +1,3 @@
 @echo off
-java bin/Tester
+java -classpath ./bin Tester
 PAUSE
