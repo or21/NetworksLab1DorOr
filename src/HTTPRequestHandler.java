@@ -1,7 +1,7 @@
 import java.io.* ;
 import java.net.* ;
 
-public final class HTTPRequestHandler implements Runnable
+public final class HTTPRequestHandler extends Thread
 {
 	public final static String CRLF = "\r\n";
 		

@@ -38,8 +38,7 @@ public class WebServer {
 					}
 				});
 
-				Thread thread = new Thread(request);
-				m_ThreadPool.AddThread(thread);
+				m_ThreadPool.AddThread(request);
 			}
 		}
 	}

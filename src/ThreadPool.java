@@ -23,7 +23,7 @@ public class ThreadPool {
 	public void Manage() {
 		synchronized (m_ManageLock) {
 			for (int i = 0; i < m_RunningRequests.size(); i++) {
-				if ((m_RunningRequests.get(i) != null) && (m_RunningRequests.get(i).getState() == Thread.State.TERMINATED)) { 
+				if ((m_RunningRequests.get(i) != null) && (((HTTPRequestHandler) m_RunningRequests.get(i)).getSocket().isClosed())) { 
 					m_RunningRequests.remove(i);
 					i--;
 				}
@@ -37,5 +37,9 @@ public class ThreadPool {
 				currentThread.start();
 			}
 		}
+	}
+	
+	public void Manage(Runnable runningThread) {
+		
 	}
 }
