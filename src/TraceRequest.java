@@ -20,7 +20,7 @@ public class TraceRequest extends HeadRequest {
 		File fileToReturn;
 		fileToReturn = openFileAccordingToUrl(m_Url);
 		if (!fileToReturn.exists()) {
-			new NotFoundRequest(m_Socket).ReturnResponse();
+			ReturnNotFoundResponse();
 		} else {
 			m_Content = Tools.ReadFile(fileToReturn, m_Type);
 			

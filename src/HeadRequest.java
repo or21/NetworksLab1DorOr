@@ -21,6 +21,9 @@ public class HeadRequest implements IClientRequest {
 	private final String TYPE_ICON = "icon";
 	private final String TYPE_IMAGE = "image/";
 	private final String TYPE_OCTET = "application/octet";
+	
+	private final String m_404NotFoundPath = "static/html/404notfound.html";
+	private final String m_404NotFoundHeader = "HTTP/1.1 404 Not Found\r\n";
 
 	protected final String HTTP_200_OK = "HTTP/1.1 200 OK\r\n";
 	protected final String CRLF = "\r\n";
@@ -51,6 +54,8 @@ public class HeadRequest implements IClientRequest {
 				int substringTo = m_Url.contains("?") ? m_Url.indexOf("?") : m_Url.length();
 				m_Extension = m_Url.substring(i + 1, substringTo);
 				m_Type = determineType(m_Extension); 
+			} else {
+				m_Type = TYPE_HTML;
 			}
 		}
 	}
@@ -107,7 +112,7 @@ public class HeadRequest implements IClientRequest {
 		fileToReturn = openFileAccordingToUrl(m_Url);
 
 		if (!fileToReturn.exists()) {
-			new NotFoundRequest(m_Socket).ReturnResponse();
+			ReturnNotFoundResponse();
 		} else {
 			OutputStream outputStream = m_Socket.getOutputStream();
 			if (m_Headers.containsKey("chunked") && m_Headers.get("chunked").equals("yes")) {
@@ -130,6 +135,10 @@ public class HeadRequest implements IClientRequest {
 				}
 			}
 		}
+	}
+	
+	protected void ReturnNotFoundResponse() throws IOException {
+		new ErrorRequest(m_404NotFoundPath, m_404NotFoundHeader, m_Socket).ReturnResponse();
 	}
 
 	protected void returnChunked(OutputStream i_OutputStream, File i_FileToReturn, String i_HeadersToReturn) {
