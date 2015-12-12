@@ -7,13 +7,19 @@ import java.util.HashMap;
 public class HeadRequest implements IClientRequest {
 	
 	private final String HTML = "html";
+	private final String JPG = "jpg";
+	private final String GIF = "gif";
+	private final String PNG = "png";
+	private final String BMP = "bmp";
 	private final String PATH_HTML = "html/";
 	private final String PATH_IMAGE = "images/";
 	private final String PATH_ICON = "icon/";
+	private final String PATH_DEFAULT = "default/";
 	private final String ICON = "ico";
 	private final String TYPE_HTML = "text/html";
 	private final String TYPE_ICON = "icon";
 	private final String TYPE_IMAGE = "image/";
+	private final String TYPE_OCTET = "application/octet";
 	
 	protected final String HTTP_200_OK = "HTTP/1.1 200 OK\r\n";
 	protected final String CRLF = "\r\n";
@@ -43,9 +49,26 @@ public class HeadRequest implements IClientRequest {
 			if (i > 0) {
 				int substringTo = m_Url.contains("?") ? m_Url.indexOf("?") : m_Url.length();
 				m_Extension = m_Url.substring(i + 1, substringTo);
-				m_Type = (m_Extension.equals(HTML) || m_Extension.equals(m_ConfigFileRootPath)) ? TYPE_HTML :
-					m_Extension.equals(ICON) ? TYPE_ICON : TYPE_IMAGE + m_Extension;
+				m_Type = determineType(m_Extension); 
 			}
+		}
+	}
+
+	private String determineType(String i_Extension) {
+		if(i_Extension.equals(HTML)) {
+			return TYPE_HTML;
+		} else if (i_Extension.equals(ICON)) {
+			return TYPE_ICON;
+		} else if (i_Extension.equals(JPG)) {
+			return TYPE_IMAGE + JPG;
+		} else if (i_Extension.equals(BMP)) {
+			return TYPE_IMAGE + BMP;
+		} else if (i_Extension.equals(GIF)) {
+			return TYPE_IMAGE + GIF;
+		} else if (i_Extension.equals(PNG)) {
+			return TYPE_IMAGE + PNG;
+		} else {
+			return TYPE_OCTET;
 		}
 	}
 
@@ -74,7 +97,7 @@ public class HeadRequest implements IClientRequest {
 		} else if (m_Type.startsWith(TYPE_IMAGE)) {
 			return PATH_IMAGE;
 		} else {
-			throw new IllegalStateException("Requesting unknown filetypes for us to handle");
+			return PATH_DEFAULT;
 		}
 	}
 
