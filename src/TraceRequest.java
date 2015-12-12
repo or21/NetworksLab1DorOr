@@ -23,8 +23,9 @@ public class TraceRequest extends HeadRequest {
 		} else {
 			m_Content = m_Request.getBytes();
 			m_Headers = Tools.SetupResponseHeaders(m_Content, m_Type);
+			m_Headers.put("Content-Length", String.valueOf(Integer.valueOf(m_Headers.get("Content-Length")) + 4));
 			StringBuilder responseString = new StringBuilder(createHeaders());
-			responseString.append("\r\n").append(m_Request.length())
+			responseString.append("\r\n").append(m_Request.length() + 4)
 			.append("\r\n").append(m_Request);
 			System.out.println(responseString);
 

@@ -1,3 +1,4 @@
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -40,7 +41,10 @@ public class GetRequest extends HeadRequest {
 		} if (m_ShouldSendChunked) {
 			m_Headers = Tools.SetupChunkedResponseHeaders(m_Type);
 			String headersToReturn = createHeaders();
-			returnChunked(outputStream, fileToReturn, headersToReturn);
+			m_Content = Tools.ReadFile(fileToReturn, m_Type);
+			StringBuilder responseString = new StringBuilder(headersToReturn);
+			responseString.append(CRLF).append(m_Content);
+			writeChunked(new DataOutputStream(outputStream), responseString.toString().getBytes());
 		} else {
 			m_Content = Tools.ReadFile(fileToReturn, m_Type);
 			m_Headers = Tools.SetupResponseHeaders(m_Content, m_Type);
@@ -60,5 +64,43 @@ public class GetRequest extends HeadRequest {
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	private void writeChunked(DataOutputStream outputStream,
+			byte[] responseData) throws NumberFormatException, IOException {
+		int chunkSize = 1024;
+		int bytesCounter = 0;
+		byte[] bytesToWriteArray;
+		int leftToWrite = responseData.length - bytesCounter;
+
+		while (responseData.length - bytesCounter > 0) {
+			if (responseData.length - bytesCounter > chunkSize) {
+				bytesToWriteArray = new byte[chunkSize];
+				System.arraycopy(responseData, bytesCounter,
+						bytesToWriteArray, 0, chunkSize);
+				bytesCounter += chunkSize;
+			} else {
+				bytesToWriteArray = new byte[leftToWrite];
+				System.arraycopy(responseData, bytesCounter,
+						bytesToWriteArray, 0, leftToWrite);
+				bytesCounter += leftToWrite;
+			}
+
+			sendChunk(outputStream, bytesToWriteArray);
+
+			leftToWrite = responseData.length - bytesCounter;
+		}
+		outputStream.write((Integer.toHexString(0)).getBytes());
+		outputStream.write(CRLF.getBytes());
+	}
+
+	private void sendChunk(DataOutputStream outputStream,
+			byte[] bytesToWriteArray) throws IOException {
+		System.out.println(new String(bytesToWriteArray));
+		outputStream
+				.write((Integer.toHexString(bytesToWriteArray.length) + CRLF)
+						.getBytes());
+		outputStream.write(bytesToWriteArray);
+		outputStream.write(CRLF.getBytes());
 	}
 }

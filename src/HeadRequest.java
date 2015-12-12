@@ -1,5 +1,4 @@
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
@@ -22,7 +21,7 @@ public class HeadRequest implements IClientRequest {
 	private final String TYPE_ICON = "icon";
 	private final String TYPE_IMAGE = "image/";
 	private final String TYPE_OCTET = "application/octet";
-	
+
 	private final String m_404NotFoundPath = "static/html/404notfound.html";
 	private final String m_404NotFoundHeader = "HTTP/1.1 404 Not Found\r\n";
 
@@ -49,7 +48,7 @@ public class HeadRequest implements IClientRequest {
 		m_Url = i_FirstHeaderRow[1].replace("/..", "");
 
 		m_ShouldSendChunked = requestHeaders.containsKey("chunked") && requestHeaders.get("chunked").equals("yes");
-		
+
 		if (m_Url.equals(m_ConfigFileRootPath)) {
 			m_Type = TYPE_HTML;
 		} else { 
@@ -119,65 +118,23 @@ public class HeadRequest implements IClientRequest {
 			ReturnNotFoundResponse();
 		} else {
 			OutputStream outputStream = m_Socket.getOutputStream();
-			if (m_ShouldSendChunked) {
-				m_Headers = Tools.SetupChunkedResponseHeaders(m_Type);
-				String headersToReturn = createHeaders();
-				returnChunked(outputStream, fileToReturn, headersToReturn);
-			}
-			else {
-				m_Content = Tools.ReadFile(fileToReturn, m_Type);	
-				m_Headers = Tools.SetupResponseHeaders(m_Content, m_Type);
-				String headersToReturn = createHeaders();
-				headersToReturn += "\r\n";
-				System.out.println(headersToReturn);
+			m_Content = Tools.ReadFile(fileToReturn, m_Type);	
+			m_Headers = Tools.SetupResponseHeaders(m_Content, m_Type);
+			String headersToReturn = createHeaders();
+			headersToReturn += "\r\n";
+			System.out.println(headersToReturn);
 
-				try {
-					outputStream.write(headersToReturn.getBytes());
-					outputStream.flush();
-					outputStream.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+			try {
+				outputStream.write(headersToReturn.getBytes());
+				outputStream.flush();
+				outputStream.close();
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
 		}
 	}
-	
+
 	protected void ReturnNotFoundResponse() throws IOException {
 		new ErrorRequest(m_404NotFoundPath, m_404NotFoundHeader, m_Socket).ReturnResponse();
-	}
-
-	protected void returnChunked(OutputStream i_OutputStream, File i_FileToReturn, String i_HeadersToReturn) {
-		FileInputStream fis = null;
-		int chunkedSize = 30;
-		try {
-			i_OutputStream.write(i_HeadersToReturn.getBytes());
-			i_OutputStream.flush();
-			
-			byte[] bFile = new byte[chunkedSize];
-			fis = new FileInputStream(i_FileToReturn);
-			while(fis.available() != 0) { 
-				fis.read(bFile, 0, bFile.length);
-				try {
-					i_OutputStream.write(bFile);
-					i_OutputStream.flush();
-					
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-		} catch (IOException ioe) {
-			try {
-				new ErrorRequest(RequestFactory.m_InternalErrorPath, RequestFactory.m_InternalErrorHeader, m_Socket).ReturnResponse();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		} finally {
-			try {
-				i_OutputStream.flush();
-				i_OutputStream.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
 	}
 }
