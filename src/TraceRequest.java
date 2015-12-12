@@ -6,11 +6,11 @@ import java.util.HashMap;
 
 public class TraceRequest extends HeadRequest {
 	
-	private String m_request;
+	private String m_Request;
 
 	public TraceRequest(String[] i_FirstHeaderRow, HashMap<String,String> requestHeaders, String i_Request, Socket i_Socket) {
 		super (i_FirstHeaderRow, requestHeaders, i_Socket);
-		m_request = i_Request;
+		m_Request = i_Request;
 	}
 
 	@Override
@@ -21,11 +21,12 @@ public class TraceRequest extends HeadRequest {
 		if (!fileToReturn.exists()) {
 			ReturnNotFoundResponse();
 		} else {
-			m_Content = Tools.ReadFile(fileToReturn, m_Type);
+			m_Content = m_Request.getBytes();
 			m_Headers = Tools.SetupResponseHeaders(m_Content, m_Type);
 			StringBuilder responseString = new StringBuilder(createHeaders());
+			responseString.append("\r\n").append(m_Request.length())
+			.append("\r\n").append(m_Request);
 			System.out.println(responseString);
-			responseString.append("\r\n").append(m_Content.length).append("\r\n").append(m_request);
 
 			try {
 				outputStream.write(responseString.toString().getBytes());

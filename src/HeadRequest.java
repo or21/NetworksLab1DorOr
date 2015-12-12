@@ -128,6 +128,7 @@ public class HeadRequest implements IClientRequest {
 				m_Content = Tools.ReadFile(fileToReturn, m_Type);	
 				m_Headers = Tools.SetupResponseHeaders(m_Content, m_Type);
 				String headersToReturn = createHeaders();
+				headersToReturn += "\r\n";
 				System.out.println(headersToReturn);
 
 				try {
@@ -148,15 +149,13 @@ public class HeadRequest implements IClientRequest {
 	protected void returnChunked(OutputStream i_OutputStream, File i_FileToReturn, String i_HeadersToReturn) {
 		FileInputStream fis = null;
 		int chunkedSize = 30;
-		try
-		{
+		try {
 			i_OutputStream.write(i_HeadersToReturn.getBytes());
 			i_OutputStream.flush();
 			
 			byte[] bFile = new byte[chunkedSize];
 			fis = new FileInputStream(i_FileToReturn);
-			while(fis.available() != 0)
-			{
+			while(fis.available() != 0) { 
 				fis.read(bFile, 0, bFile.length);
 				try {
 					i_OutputStream.write(bFile);
@@ -166,15 +165,13 @@ public class HeadRequest implements IClientRequest {
 					e.printStackTrace();
 				}
 			}
-		}
-		catch (IOException ioe) {
+		} catch (IOException ioe) {
 			try {
 				new ErrorRequest(RequestFactory.m_InternalErrorPath, RequestFactory.m_InternalErrorHeader, m_Socket).ReturnResponse();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-		}
-		finally {
+		} finally {
 			try {
 				i_OutputStream.flush();
 				i_OutputStream.close();
