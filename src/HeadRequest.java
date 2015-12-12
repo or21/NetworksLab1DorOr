@@ -9,6 +9,7 @@ public class HeadRequest implements IClientRequest {
 
 	private final String HTML = "html";
 	private final String JPG = "jpg";
+	private final String JPEG = "jpeg";
 	private final String GIF = "gif";
 	private final String PNG = "png";
 	private final String BMP = "bmp";
@@ -69,7 +70,7 @@ public class HeadRequest implements IClientRequest {
 		} else if (i_Extension.equals(ICON)) {
 			return TYPE_ICON;
 		} else if (i_Extension.equals(JPG)) {
-			return TYPE_IMAGE + JPG;
+			return TYPE_IMAGE + JPEG;
 		} else if (i_Extension.equals(BMP)) {
 			return TYPE_IMAGE + BMP;
 		} else if (i_Extension.equals(GIF)) {

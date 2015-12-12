@@ -27,8 +27,8 @@ public class PostRequest extends GetRequest {
 		else {
 			OutputStream outputStream = m_Socket.getOutputStream();
 			StringBuilder content = new StringBuilder();
-			content.append("<html>\n<head><title>Your response</title></head>\n<body>");
-			content.append("Params: <br>");
+			content.append("<html>\n<head><title>Params Info</title></head>\n<body>");
+			content.append("<b>Params</b>: <br>");
 			for (String key : m_Params.keySet()) {
 				content.append(key + ": " + m_Params.get(key) + "<br>");
 			}

@@ -10,7 +10,6 @@ public class TraceRequest extends HeadRequest {
 
 	public TraceRequest(String[] i_FirstHeaderRow, HashMap<String,String> requestHeaders, String i_Request, Socket i_Socket) {
 		super (i_FirstHeaderRow, requestHeaders, i_Socket);
-
 		m_request = i_Request;
 	}
 
@@ -23,9 +22,8 @@ public class TraceRequest extends HeadRequest {
 			ReturnNotFoundResponse();
 		} else {
 			m_Content = Tools.ReadFile(fileToReturn, m_Type);
-			
+			m_Headers = Tools.SetupResponseHeaders(m_Content, m_Type);
 			StringBuilder responseString = new StringBuilder(createHeaders());
-
 			System.out.println(responseString);
 			responseString.append("\r\n").append(m_Content.length).append("\r\n").append(m_request);
 

@@ -2,7 +2,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Locale;
+import java.util.TimeZone;
 
 public class Tools {
 
@@ -10,6 +14,7 @@ public class Tools {
 		HashMap<String, String> headers = new HashMap<>();
 		headers.put("Content-Type", i_Type);
 		headers.put("Content-Length", String.valueOf(i_Content.length));
+		headers.put("Date", getServerTime());
 		return headers;
 	}
 	
@@ -62,6 +67,15 @@ public class Tools {
 		HashMap<String, String> headers = new HashMap<>();
 		headers.put("Content-Type", i_Type);
 		headers.put("Transfer-Encoding", "chunked");
+		headers.put("Date", getServerTime());
 		return headers;
+	}
+	
+	private static String getServerTime() {
+	    Calendar calendar = Calendar.getInstance();
+	    SimpleDateFormat dateFormat = new SimpleDateFormat(
+	        "EEE, dd MMM yyyy HH:mm:ss z", Locale.US);
+	    dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+	    return dateFormat.format(calendar.getTime());
 	}
 }
