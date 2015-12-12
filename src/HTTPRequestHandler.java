@@ -22,24 +22,16 @@ public final class HTTPRequestHandler extends Thread
 		{
 			processRequest();
 		}
-		catch (SocketException se) {
-			System.out.println(se.getMessage());
-		}
-		catch (IllegalArgumentException iae) {
-			try {
-				new BadRequest(m_Socket).ReturnResponse();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
 		catch (Exception e)
 		{
-			try {
-				new InternalServerError(m_Socket).ReturnResponse();
-			} catch (SocketException se) {
-				System.out.println(se.getMessage());
-			} catch (IOException ioe) {
-				ioe.printStackTrace();
+			if (m_Socket != null && m_Socket.isClosed()) {
+					try {
+						new ErrorRequest(RequestFactory.m_InternalErrorPath, RequestFactory.m_InternalErrorHeader, m_Socket).ReturnResponse();
+					} catch (IOException ioe) {
+						System.out.println(ioe.getMessage());
+					}					
+			} else {
+				System.out.println(e.getMessage());
 			}
 		}
 	}

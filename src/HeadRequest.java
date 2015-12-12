@@ -156,7 +156,7 @@ public class HeadRequest implements IClientRequest {
 		}
 		catch (IOException ioe) {
 			try {
-				new InternalServerError(m_Socket).ReturnResponse();
+				new ErrorRequest(RequestFactory.m_InternalErrorPath, RequestFactory.m_InternalErrorHeader, m_Socket).ReturnResponse();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

@@ -4,6 +4,16 @@ import java.util.HashMap;
 
 public class RequestFactory {
 
+	public final static String m_NotImplementedPath = "static/html/501NotImplemented.html";
+	public final static String m_NotImplementedHeader = "HTTP/1.1 501 Not Implemented\r\n";
+	public final static String m_BadRequestPath = "static/html/400BadRequest.html";
+	public final static String m_BadRequestHeader = "HTTP/1.1 400 Bad Request\r\n";
+	public final static String m_ForbiddenRequestPath = "static/html/403ForbiddenRequest.html";
+	public final static String m_ForbiddenRequestHeader = "HTTP/1.1 403 Forbidden\r\n";
+	public final static String m_InternalErrorPath = "static/html/500InternalError.html";
+	public final static String m_InternalErrorHeader = "HTTP/1.1 500 Internal Server Error\r\n";
+
+	
 	public static IClientRequest CreateRequest(String i_Request, Socket i_Socket) {
 		String[] requestSplitByBreak = i_Request.split("\r\n\r\n");
 		String[] allHeaders = requestSplitByBreak[0].split("\r\n");
@@ -15,9 +25,9 @@ public class RequestFactory {
 		
 		String[] firstHeader = allHeaders[0].split("[ ]+");
 		if ((firstHeader.length != 3) || (!eSupportedHTTP.isInEnum(firstHeader[2]))){ 
-			return new BadRequest(i_Socket);
+			return new ErrorRequest(m_BadRequestPath, m_BadRequestHeader, i_Socket);
 		} else if (!checkValidPath(firstHeader[1])) {
-			return new ForbiddenRequest(i_Socket);
+			return new ErrorRequest(m_ForbiddenRequestPath, m_ForbiddenRequestHeader, i_Socket);
 		} else {
 			try {
 				eMethods caseSwitch = eMethods.valueOf(firstHeader[0]);
@@ -35,17 +45,17 @@ public class RequestFactory {
 					return new TraceRequest(firstHeader, requestHeaders, i_Request, i_Socket);
 				
 				default:
-					return new NotImplementedRequest(i_Socket); 
+					return new ErrorRequest(m_NotImplementedPath, m_NotImplementedHeader, i_Socket);
 				}
 			}
 			catch (IllegalArgumentException iae) {
-				return new NotImplementedRequest(i_Socket);
+				return new ErrorRequest(m_NotImplementedPath, m_NotImplementedHeader, i_Socket);
 			}
 			catch (NullPointerException npe) {
-				return new NotImplementedRequest(i_Socket);
+				return new ErrorRequest(m_NotImplementedPath, m_NotImplementedHeader, i_Socket);
 			}
 			catch (Exception e) {
-				return new InternalServerError(i_Socket);
+				return new ErrorRequest(m_InternalErrorPath, m_InternalErrorHeader, i_Socket);
 			}
 		}
 	}

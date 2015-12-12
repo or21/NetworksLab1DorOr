@@ -37,6 +37,10 @@ public class GetRequest extends HeadRequest {
 		fileToReturn = openFileAccordingToUrl(m_Url);
 		if (!fileToReturn.exists()) {
 			new NotFoundRequest(m_Socket).ReturnResponse();
+		} if (m_Headers.containsKey("chunked") && m_Headers.get("chunked").equals("yes")) {
+			m_Headers = Tools.SetupChunkedResponseHeaders(m_Type);
+			String headersToReturn = createHeaders();
+			returnChunked(outputStream, fileToReturn, headersToReturn);
 		} else {
 			m_Content = Tools.ReadFile(fileToReturn, m_Type);
 			m_Headers = Tools.SetupResponseHeaders(m_Content, m_Type);

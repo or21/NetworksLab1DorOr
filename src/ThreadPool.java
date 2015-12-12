@@ -38,8 +38,4 @@ public class ThreadPool {
 			}
 		}
 	}
-	
-	public void Manage(Runnable runningThread) {
-		
-	}
 }
