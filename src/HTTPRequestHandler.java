@@ -50,12 +50,12 @@ public final class HTTPRequestHandler implements Runnable
 	}
 
 	private String readRequestFromClient() throws IOException {
+		int buffSize = m_Socket.getReceiveBufferSize();
+		int ret_read;
+		byte[] buff = new byte[buffSize];
 		StringBuilder requestHeaders = new StringBuilder();
 		DataInputStream inputStream = new DataInputStream(m_Socket.getInputStream());
-		int buffSize = m_Socket.getReceiveBufferSize();
-        if (buffSize > 0) {
-            byte[] buff = new byte[buffSize];
-            int ret_read = inputStream.read(buff);
+        while ((ret_read = inputStream.read(buff)) != -1) {
             requestHeaders.append(new String(buff, 0, ret_read));
         }
         
