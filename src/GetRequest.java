@@ -37,7 +37,7 @@ public class GetRequest extends HeadRequest {
 		fileToReturn = openFileAccordingToUrl(m_Url);
 		if (!fileToReturn.exists()) {
 			ReturnNotFoundResponse();
-		} if (m_Headers.containsKey("chunked") && m_Headers.get("chunked").equals("yes")) {
+		} if (m_ShouldSendChunked) {
 			m_Headers = Tools.SetupChunkedResponseHeaders(m_Type);
 			String headersToReturn = createHeaders();
 			returnChunked(outputStream, fileToReturn, headersToReturn);

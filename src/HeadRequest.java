@@ -29,6 +29,7 @@ public class HeadRequest implements IClientRequest {
 	protected final String CRLF = "\r\n";
 	protected final String m_StaticFilesPath = "static/";
 
+	protected boolean m_ShouldSendChunked = false;
 	protected String m_Type;
 	protected String m_Url;
 	protected HashMap<String, String> m_Headers;
@@ -46,6 +47,8 @@ public class HeadRequest implements IClientRequest {
 		m_Url = i_FirstHeaderRow[1].replace("/../", "/");
 		m_Url = i_FirstHeaderRow[1].replace("/..", "");
 
+		m_ShouldSendChunked = requestHeaders.containsKey("chunked") && requestHeaders.get("chunked").equals("yes");
+		
 		if (m_Url.equals(m_ConfigFileRootPath)) {
 			m_Type = TYPE_HTML;
 		} else { 
@@ -115,7 +118,7 @@ public class HeadRequest implements IClientRequest {
 			ReturnNotFoundResponse();
 		} else {
 			OutputStream outputStream = m_Socket.getOutputStream();
-			if (m_Headers.containsKey("chunked") && m_Headers.get("chunked").equals("yes")) {
+			if (m_ShouldSendChunked) {
 				m_Headers = Tools.SetupChunkedResponseHeaders(m_Type);
 				String headersToReturn = createHeaders();
 				returnChunked(outputStream, fileToReturn, headersToReturn);
