@@ -1,4 +1,6 @@
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.util.HashMap;
@@ -26,6 +28,7 @@ public class PostRequest extends GetRequest {
 		}
 		else {
 			OutputStream outputStream = m_Socket.getOutputStream();
+			BufferedReader inputStream = new BufferedReader(new InputStreamReader(m_Socket.getInputStream()));
 			StringBuilder content = new StringBuilder();
 			content.append("<html>\n<head><title>Your response</title></head>\n<body>");
 			content.append("Params: <br>");
