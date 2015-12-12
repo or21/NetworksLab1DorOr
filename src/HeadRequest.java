@@ -1,9 +1,10 @@
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.Socket;
 import java.util.HashMap;
 
-public class HeadRequest implements ClientRequest {
+public class HeadRequest implements IClientRequest {
 	
 	private final String HTML = "html";
 	private final String PATH_HTML = "html/";
@@ -25,12 +26,15 @@ public class HeadRequest implements ClientRequest {
 	protected String m_ConfigFileRootPath;
 	protected String m_ConfigFileDefaultPage;
 	protected String m_Extension;
+	protected Socket m_Socket;
 
-	public HeadRequest(String[] i_FirstHeaderRow, String[] i_AllOtherHeaders) {
+	public HeadRequest(String[] i_FirstHeaderRow, HashMap<String, String> requestHeaders, Socket i_Socket) {
+		this.m_Socket = i_Socket;
 		m_ConfigFileRootPath = ConfigFile.GetInstance().GetConfigurationParameters().get(ConfigFile.CONFIG_FILE_ROOT_KEY);
 		m_ConfigFileDefaultPage = ConfigFile.GetInstance().GetConfigurationParameters().get(ConfigFile.CONFIG_FILE_DEFAULT_PAGE_KEY);
 		
 		m_Url = i_FirstHeaderRow[1].replace("/../", "/");
+		m_Url = i_FirstHeaderRow[1].replace("/..", "");
 
 		if (m_Url.equals(m_ConfigFileRootPath)) {
 			m_Type = TYPE_HTML;
@@ -47,7 +51,7 @@ public class HeadRequest implements ClientRequest {
 
 	protected String createHeaders() {
 		StringBuilder responseString = new StringBuilder(HTTP_200_OK);
-		m_Headers = Tools.SetupHeaders(m_Content, m_Type);
+		m_Headers = Tools.SetupResponseHeaders(m_Content, m_Type);
 
 		for(String header : m_Headers.keySet()) {
 			responseString.append(header).append(": ").append(m_Headers.get(header)).append(CRLF);
@@ -75,11 +79,12 @@ public class HeadRequest implements ClientRequest {
 	}
 
 	@Override
-	public void ReturnResponse(OutputStream i_OutputStream) {
+	public void ReturnResponse() throws IOException {
+		OutputStream outputStream = m_Socket.getOutputStream();
 		File fileToReturn;
 		fileToReturn = openFileAccordingToUrl(m_Url);
 		if (!fileToReturn.exists()) {
-			new NotFoundRequest().ReturnResponse(i_OutputStream);
+			new NotFoundRequest(m_Socket).ReturnResponse();
 		} else {
 			m_Content = Tools.ReadFile(fileToReturn, m_Type);			
 			String headersToReturn = createHeaders();
@@ -87,9 +92,9 @@ public class HeadRequest implements ClientRequest {
 			System.out.println(headersToReturn);
 
 			try {
-				i_OutputStream.write(headersToReturn.getBytes());
-				i_OutputStream.flush();
-				i_OutputStream.close();
+				outputStream.write(headersToReturn.getBytes());
+				outputStream.flush();
+				outputStream.close();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

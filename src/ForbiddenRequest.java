@@ -1,21 +1,28 @@
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.Socket;
 import java.util.HashMap;
 
-public class ForbiddenRequest implements ClientRequest {
+public class ForbiddenRequest implements IClientRequest {
 	
 	private final String m_Type = "text/html";
 	private final String m_ForbiddenRequestPath = "static/html/403ForbiddenRequest.html";
 	private final String m_Header = "HTTP/1.1 403 Forbidden\r\n";
+	private Socket m_Socket;
+
+	public ForbiddenRequest(Socket i_Socket) {
+		this.m_Socket = i_Socket;
+	}
 
 	@Override
-	public void ReturnResponse(OutputStream i_OutputStream) {
+	public void ReturnResponse() throws IOException {
+		OutputStream outputStream = m_Socket.getOutputStream();
 		StringBuilder responseString = new StringBuilder();
 		responseString.append(m_Header);
 		
 		byte[] content = Tools.ReadFile(new File(m_ForbiddenRequestPath), m_Type);
-		HashMap<String, String> defaultHeaders = Tools.SetupHeaders(content, m_Type);
+		HashMap<String, String> defaultHeaders = Tools.SetupResponseHeaders(content, m_Type);
 		for(String header : defaultHeaders.keySet()) {
 			responseString.append(header).append(": ").append(defaultHeaders.get(header)).append("\r\n");
 		}
@@ -24,10 +31,10 @@ public class ForbiddenRequest implements ClientRequest {
 		responseString.append("\r\n");
 		
 		try {
-			i_OutputStream.write(responseString.toString().getBytes());
-			i_OutputStream.write(content);
-			i_OutputStream.flush();			
-			i_OutputStream.close();
+			outputStream.write(responseString.toString().getBytes());
+			outputStream.write(content);
+			outputStream.flush();			
+			outputStream.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

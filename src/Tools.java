@@ -6,14 +6,25 @@ import java.util.HashMap;
 
 public class Tools {
 
-	public static HashMap<String, String> SetupHeaders(byte[] i_Content, String i_Type) {
+	public static HashMap<String, String> SetupResponseHeaders(byte[] i_Content, String i_Type) {
 		HashMap<String, String> headers = new HashMap<>();
 		headers.put("Content-Type", i_Type);
 		headers.put("Content-Length", String.valueOf(i_Content.length));
 		return headers;
 	}
 	
-	// TODO: Or. This doesn't work for images. Try to figure out why
+	public static HashMap<String, String> SetupRequestHeaders(String[] i_RequestHeaders) throws IllegalArgumentException {
+		HashMap<String, String> responseDictionary = new HashMap<String, String>();
+		for (String header :  i_RequestHeaders) {
+			String[] splitted = header.split(": ");
+			if (splitted.length != 2) {
+				throw new IllegalArgumentException();
+			}
+			responseDictionary.put(splitted[0], splitted[1]);
+		}
+		return responseDictionary;
+	}
+	
 	public static byte[] ReadFile(File i_File, String i_Type)
 	{
 		FileInputStream fis = null;

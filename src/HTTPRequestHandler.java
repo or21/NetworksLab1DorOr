@@ -7,7 +7,7 @@ public final class HTTPRequestHandler implements Runnable
 		
 	Socket m_Socket;
 	Runnable m_Callback;
-
+	
 	// Constructor
 	public HTTPRequestHandler(Socket i_Socket, Runnable i_Callback)
 	{
@@ -22,8 +22,20 @@ public final class HTTPRequestHandler implements Runnable
 		{
 			processRequest();
 		}
+		catch (IllegalArgumentException iae) {
+			try {
+				new BadRequest(m_Socket).ReturnResponse();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 		catch (Exception e)
 		{
+			try {
+				new InternalServerError(m_Socket).ReturnResponse();
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			};
 			System.out.println(e);
 		}
 	}
@@ -31,22 +43,25 @@ public final class HTTPRequestHandler implements Runnable
 	private void processRequest() throws Exception
 	{
 		String request = readRequestFromClient();
-		ClientRequest clientRequest = RequestFactory.CreateRequest(request);
-		clientRequest.ReturnResponse(m_Socket.getOutputStream());
+		IClientRequest clientRequest = RequestFactory.CreateRequest(request, m_Socket);
+		clientRequest.ReturnResponse();
 		m_Socket.close();
 		m_Callback.run();
 	}
 
 	private String readRequestFromClient() throws IOException {
-		String inputMessage;
 		StringBuilder requestHeaders = new StringBuilder();
-		BufferedReader inputStream = new BufferedReader(new InputStreamReader(m_Socket.getInputStream()));
-		while((inputMessage = inputStream.readLine()) != null && inputMessage.length() > 0) {
-			System.out.println(inputMessage);
-			requestHeaders.append(inputMessage).append(CRLF);
-		}
-		System.out.println();
-		requestHeaders.append(CRLF);
+		DataInputStream inputStream = new DataInputStream(m_Socket.getInputStream());
+		int buffSize = m_Socket.getReceiveBufferSize();
+        if (buffSize > 0) {
+            byte[] buff = new byte[buffSize];
+            int ret_read = inputStream.read(buff);
+            requestHeaders.append(new String(buff, 0, ret_read));
+        }
+        
+        requestHeaders.append(CRLF);
+		System.out.println(requestHeaders);
+		
 		return requestHeaders.toString();
 	}
 }
