@@ -1,3 +1,6 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.Socket;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -9,7 +12,7 @@ public class RequestFactory {
 		String[] allHeaders = requestSplitByBreak[0].split("\r\n");
 		HashMap<String, String> requestHeaders = Tools.SetupRequestHeaders(Arrays.copyOfRange(allHeaders, 1, allHeaders.length));
 		
-		if (requestSplitByBreak[1] != null) {
+		if (requestSplitByBreak.length == 2 && requestSplitByBreak[1] != null) {
 			requestHeaders.put("params", requestSplitByBreak[1]);
 		}
 		

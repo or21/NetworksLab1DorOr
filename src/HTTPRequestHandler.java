@@ -22,6 +22,9 @@ public final class HTTPRequestHandler implements Runnable
 		{
 			processRequest();
 		}
+		catch (SocketException se) {
+			System.out.println(se.getMessage());
+		}
 		catch (IllegalArgumentException iae) {
 			try {
 				new BadRequest(m_Socket).ReturnResponse();
@@ -33,10 +36,11 @@ public final class HTTPRequestHandler implements Runnable
 		{
 			try {
 				new InternalServerError(m_Socket).ReturnResponse();
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			};
-			System.out.println(e);
+			} catch (SocketException se) {
+				System.out.println(se.getMessage());
+			} catch (IOException ioe) {
+				ioe.printStackTrace();
+			}
 		}
 	}
 
@@ -50,18 +54,25 @@ public final class HTTPRequestHandler implements Runnable
 	}
 
 	private String readRequestFromClient() throws IOException {
-		int buffSize = m_Socket.getReceiveBufferSize();
-		int ret_read;
-		byte[] buff = new byte[buffSize];
+		boolean postFlag = false;
+		String ret_read;
 		StringBuilder requestHeaders = new StringBuilder();
-		DataInputStream inputStream = new DataInputStream(m_Socket.getInputStream());
-        while ((ret_read = inputStream.read(buff)) != -1) {
-            requestHeaders.append(new String(buff, 0, ret_read));
+		BufferedReader inputStream = new BufferedReader(new InputStreamReader(m_Socket.getInputStream()));
+        while (!(ret_read = inputStream.readLine()).equals("")) {
+        	if (ret_read.startsWith("POST")) {
+        		postFlag = true;
+        	}
+        	requestHeaders.append(ret_read);
+        	requestHeaders.append(CRLF);
         }
-        
-        requestHeaders.append(CRLF);
-		System.out.println(requestHeaders);
-		
+        if (postFlag) {
+        	requestHeaders.append(CRLF);
+        	while(inputStream.ready()) {
+        		requestHeaders.append((char) inputStream.read());
+        	}
+        }
+                
+        System.out.println(requestHeaders);
 		return requestHeaders.toString();
 	}
 }
