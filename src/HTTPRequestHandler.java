@@ -72,7 +72,6 @@ public final class HTTPRequestHandler extends Thread
         }
                 
         System.out.println(requestHeaders);
-        System.out.println();
 		return requestHeaders.toString();
 	}
 	

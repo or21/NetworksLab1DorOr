@@ -8,6 +8,7 @@ import java.util.HashMap;
 public class GetRequest extends HeadRequest {
 
 	protected HashMap<String, String> m_Params;
+	byte[] CRLFinByteArray = CRLF.getBytes();
 
 	public GetRequest(String[] i_FirstHeaderRow, HashMap<String, String> requestHeaders, Socket i_Socket) {
 		super(i_FirstHeaderRow, requestHeaders, i_Socket);
@@ -48,12 +49,11 @@ public class GetRequest extends HeadRequest {
 
 		// Create chunk response
 		if (m_ShouldSendChunked) {
-
 			m_Headers = Tools.SetupChunkedResponseHeaders(m_Type);
 			String headersToReturn = createHeaders();
 			m_Content = Tools.ReadFile(fileToReturn);
 			StringBuilder responseString = new StringBuilder(headersToReturn);
-			responseString.append(CRLF).append(m_Content);
+			responseString.append(CRLF);
 			writeChunked(new DataOutputStream(outputStream), responseString.toString().getBytes());
 		} else {
 			// Create and send regular response
@@ -79,37 +79,47 @@ public class GetRequest extends HeadRequest {
 	/*
 	 * Write the response in chunks
 	 */
-	private void writeChunked(DataOutputStream outputStream,
-			byte[] responseData) throws NumberFormatException, IOException {
+	private void writeChunked(DataOutputStream i_OutputStream, byte[] i_HeadersData) throws NumberFormatException, IOException {
 		int chunkSize = 1024;
 		int bytesCounter = 0;
+		int amountOfData = m_Content.length;
+		int leftToWrite = amountOfData - bytesCounter;
 		byte[] bytesToWriteArray;
-		int leftToWrite = responseData.length - bytesCounter;
+		
+		byte[] dataToSend = new byte[amountOfData];
+		//System.arraycopy(i_HeadersData, 0, dataToSend, 0, i_HeadersData.length);
+		System.arraycopy(m_Content, 0, dataToSend, 0, m_Content.length);
 
+		System.out.println(new String(i_HeadersData));
+		i_OutputStream.write(i_HeadersData);
+		
 		// Build each chunk according to chunkSize
-		while (responseData.length - bytesCounter > 0) {
-			if (responseData.length - bytesCounter > chunkSize) {
+		while (leftToWrite > 0) {
+			if (leftToWrite >= chunkSize - CRLFinByteArray.length) {
 				bytesToWriteArray = new byte[chunkSize];
-				System.arraycopy(responseData, bytesCounter, bytesToWriteArray, 0, chunkSize);
-				bytesCounter += chunkSize;
+				System.arraycopy(dataToSend, bytesCounter, bytesToWriteArray, 0, chunkSize - CRLFinByteArray.length);
+				bytesCounter += (chunkSize - CRLFinByteArray.length);
+				System.arraycopy(CRLFinByteArray, 0, bytesToWriteArray, chunkSize - CRLFinByteArray.length, CRLFinByteArray.length);
 			} else {
-				bytesToWriteArray = new byte[leftToWrite];
-				System.arraycopy(responseData, bytesCounter, bytesToWriteArray, 0, leftToWrite);
+				bytesToWriteArray = new byte[leftToWrite + CRLFinByteArray.length];
+				System.arraycopy(dataToSend, bytesCounter, bytesToWriteArray, 0, leftToWrite);
 				bytesCounter += leftToWrite;
+				System.arraycopy(CRLFinByteArray, 0, bytesToWriteArray, leftToWrite, CRLFinByteArray.length);
 			}
-
-			sendChunk(outputStream, bytesToWriteArray);
-			leftToWrite = responseData.length - bytesCounter;
+			
+			sendChunk(i_OutputStream, bytesToWriteArray);
+			leftToWrite = amountOfData - bytesCounter;
 		}
 		
-		outputStream.write((Integer.toHexString(0)).getBytes());
-		outputStream.write(CRLF.getBytes());
+		i_OutputStream.write((Integer.toHexString(0)).getBytes());
+		i_OutputStream.write(CRLFinByteArray);
+		i_OutputStream.write(CRLFinByteArray);
 	}
 
-	private void sendChunk(DataOutputStream outputStream, byte[] bytesToWriteArray) throws IOException {
-		System.out.println(new String(bytesToWriteArray));
-		outputStream.write((Integer.toHexString(bytesToWriteArray.length) + CRLF).getBytes());
-		outputStream.write(bytesToWriteArray);
-		outputStream.write(CRLF.getBytes());
+	private void sendChunk(DataOutputStream i_OutputStream, byte[] i_BytesToWriteArray) throws IOException {
+		System.out.println(i_BytesToWriteArray.length + CRLF + new String(i_BytesToWriteArray));
+		i_OutputStream.write((Integer.toHexString(i_BytesToWriteArray.length) + CRLF).getBytes());
+		i_OutputStream.write(i_BytesToWriteArray);
+		i_OutputStream.flush();
 	}
 }
