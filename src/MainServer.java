@@ -1,4 +1,4 @@
-public class Tester {
+public class MainServer {
 	public static void main(String[] args) {
 		ConfigFile config = ConfigFile.GetInstance();
 		config.Parse(ConfigFile.CONFIG_FILE_PATH);

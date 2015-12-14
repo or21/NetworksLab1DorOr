@@ -2,6 +2,9 @@ import java.net.Socket;
 import java.util.Arrays;
 import java.util.HashMap;
 
+/**
+ * Create the relevant object for a request
+ */
 public class RequestFactory {
 
 	public final static String m_NotImplementedPath = "static/html/501NotImplemented.html";
@@ -13,7 +16,9 @@ public class RequestFactory {
 	public final static String m_InternalErrorPath = "static/html/500InternalError.html";
 	public final static String m_InternalErrorHeader = "HTTP/1.1 500 Internal Server Error\r\n";
 
-	
+	/*
+	 * Create object according to request
+	 */
 	public static IClientRequest CreateRequest(String i_Request, Socket i_Socket) {
 		String[] requestSplitByBreak = i_Request.split("\r\n\r\n");
 		String[] allHeaders = requestSplitByBreak[0].split("\r\n");
@@ -60,6 +65,9 @@ public class RequestFactory {
 		}
 	}
 
+	/*
+	 * Check if a path is valid
+	 */
 	private static boolean checkValidPath(String i_Url) {
 		boolean isValid = true;
 		
@@ -70,6 +78,9 @@ public class RequestFactory {
 		return isValid;
 	}
 	
+	/*
+	 * Enum with all supported requests
+	 */
 	public static enum eMethods {
 		GET,
 		POST,
@@ -77,6 +88,9 @@ public class RequestFactory {
 		TRACE
 	}
 	
+	/*
+	 * Enum with the supported HTTP versions
+	 */
 	public enum eSupportedHTTP {
 		ONE("HTTP/1.0"),
 		ONEPOINTONE("HTTP/1.1");

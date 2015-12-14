@@ -21,6 +21,11 @@ public class WebServer {
 		m_ServerSocket = createServerSocket();
 	}
 
+	/*
+	 * Wait for connection. 
+	 * For each connection - create HTTPRequestHandler.
+	 * When the thread finished - manage the thread pool.
+	 */
 	public void Run() {
 		System.out.println("Listening on port: " + m_Port);
 		while (true)

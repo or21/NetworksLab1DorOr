@@ -21,14 +21,12 @@ public class HeadRequest implements IClientRequest {
 	private final String TYPE_ICON = "icon";
 	private final String TYPE_IMAGE = "image/";
 	private final String TYPE_OCTET = "application/octet";
-
 	private final String m_404NotFoundPath = "static/html/404notfound.html";
 	private final String m_404NotFoundHeader = "HTTP/1.1 404 Not Found\r\n";
 
 	protected final String HTTP_200_OK = "HTTP/1.1 200 OK\r\n";
 	protected final String CRLF = "\r\n";
 	protected final String m_StaticFilesPath = "static/";
-
 	protected boolean m_ShouldSendChunked = false;
 	protected String m_Type;
 	protected String m_Url;
@@ -39,6 +37,9 @@ public class HeadRequest implements IClientRequest {
 	protected String m_Extension;
 	protected Socket m_Socket;
 
+	/*
+	 * Constructor.
+	 */
 	public HeadRequest(String[] i_FirstHeaderRow, HashMap<String, String> requestHeaders, Socket i_Socket) {
 		this.m_Socket = i_Socket;
 		m_ConfigFileRootPath = ConfigFile.GetInstance().GetConfigurationParameters().get(ConfigFile.CONFIG_FILE_ROOT_KEY);
@@ -63,6 +64,9 @@ public class HeadRequest implements IClientRequest {
 		}
 	}
 
+	/*
+	 * Select the type of the request file according to the request
+	 */
 	private String determineType(String i_Extension) {
 		if(i_Extension.equals(HTML)) {
 			return TYPE_HTML;
@@ -81,6 +85,9 @@ public class HeadRequest implements IClientRequest {
 		}
 	}
 
+	/*
+	 * Build the headers for the response
+	 */
 	protected String createHeaders() {
 		StringBuilder responseString = new StringBuilder(HTTP_200_OK);
 
@@ -91,13 +98,19 @@ public class HeadRequest implements IClientRequest {
 		return responseString.toString();
 	}
 
+	/*
+	 * Open the file from the URL request
+	 */
 	protected File openFileAccordingToUrl(String i_Url) {
 		return (m_Url.equals(m_ConfigFileRootPath) ? 
 				new File(m_StaticFilesPath + PATH_HTML + m_ConfigFileDefaultPage) : 
-					new File(m_StaticFilesPath + determineFileType() + m_Url));
+					new File(m_StaticFilesPath + determineFileLocation() + m_Url));
 	}
 
-	private String determineFileType() {
+	/*
+	 * Determine in which folder to look for the file
+	 */
+	private String determineFileLocation() {
 		if (m_Type.equals(TYPE_HTML)) {
 			return PATH_HTML;
 		} else if (m_Type.equals(TYPE_ICON)) {
@@ -109,6 +122,9 @@ public class HeadRequest implements IClientRequest {
 		}
 	}
 
+	/*
+	 * Return the response for HEAD request
+	 */
 	@Override
 	public void ReturnResponse() throws IOException {
 		File fileToReturn;
@@ -118,7 +134,7 @@ public class HeadRequest implements IClientRequest {
 			ReturnNotFoundResponse();
 		} else {
 			OutputStream outputStream = m_Socket.getOutputStream();
-			m_Content = Tools.ReadFile(fileToReturn, m_Type);	
+			m_Content = Tools.ReadFile(fileToReturn);	
 			m_Headers = Tools.SetupResponseHeaders(m_Content, m_Type);
 			String headersToReturn = createHeaders();
 			headersToReturn += "\r\n";

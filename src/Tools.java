@@ -10,6 +10,9 @@ import java.util.TimeZone;
 
 public class Tools {
 
+	/*
+	 * Create headers for HTTP response
+	 */
 	public static HashMap<String, String> SetupResponseHeaders(byte[] i_Content, String i_Type) {
 		HashMap<String, String> headers = new HashMap<>();
 		headers.put("Content-Type", i_Type);
@@ -18,6 +21,9 @@ public class Tools {
 		return headers;
 	}
 	
+	/*
+	 * Create dictionary from the request according to headers
+	 */
 	public static HashMap<String, String> SetupRequestHeaders(String[] i_RequestHeaders) throws IllegalArgumentException {
 		HashMap<String, String> responseDictionary = new HashMap<String, String>();
 		for (String header :  i_RequestHeaders) {
@@ -30,18 +36,22 @@ public class Tools {
 		return responseDictionary;
 	}
 	
-	public static byte[] ReadFile(File i_File, String i_Type)
+	/*
+	 * Read from file.
+	 * Return the file in byte array.
+	 */
+	public static byte[] ReadFile(File i_File)
 	{
 		FileInputStream fis = null;
 		try
 		{
-			byte[] bFile = new byte[(int)i_File.length()];
+			byte[] fileInBytesArray = new byte[(int)i_File.length()];
 			fis = new FileInputStream(i_File);
 			while(fis.available() != 0)
 			{
-				fis.read(bFile, 0, bFile.length);
+				fis.read(fileInBytesArray, 0, fileInBytesArray.length);
 			}
-			return bFile;
+			return fileInBytesArray;
 		}
 		catch(FileNotFoundException i_FNFE)
 		{
@@ -52,7 +62,8 @@ public class Tools {
 		{
 			System.out.println("IOException");
 			return null;
-		} finally {
+		} 
+		finally {
 			if (fis != null) {
 				try {
 					fis.close();
@@ -63,6 +74,9 @@ public class Tools {
 		}
 	}
 
+	/*
+	 * Create headers for chunk response
+	 */
 	public static HashMap<String, String> SetupChunkedResponseHeaders(String i_Type) {
 		HashMap<String, String> headers = new HashMap<>();
 		headers.put("Content-Type", i_Type);

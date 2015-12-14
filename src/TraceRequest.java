@@ -8,11 +8,17 @@ public class TraceRequest extends HeadRequest {
 	
 	private String m_Request;
 
+	/*
+	 * Constructor
+	 */
 	public TraceRequest(String[] i_FirstHeaderRow, HashMap<String,String> requestHeaders, String i_Request, Socket i_Socket) {
 		super (i_FirstHeaderRow, requestHeaders, i_Socket);
 		m_Request = i_Request;
 	}
 
+	/*
+	 * Return response for Trace request
+	 */
 	@Override
 	public void ReturnResponse() throws IOException {
 		OutputStream outputStream = m_Socket.getOutputStream();

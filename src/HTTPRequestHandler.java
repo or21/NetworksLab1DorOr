@@ -15,7 +15,7 @@ public final class HTTPRequestHandler extends Thread
 		this.m_Callback = i_Callback;
 	}
 
-	// Implement the run() method of the Runnable interface.
+	// Implement the handler routine.
 	public void run()
 	{
 		try
@@ -36,6 +36,10 @@ public final class HTTPRequestHandler extends Thread
 		}
 	}
 
+	/**
+	 * Create request according to client and return callback when connection is closed
+	 * @throws Exception
+	 */
 	private void processRequest() throws Exception
 	{
 		String request = readRequestFromClient();
@@ -45,6 +49,9 @@ public final class HTTPRequestHandler extends Thread
 		m_Callback.run();
 	}
 
+	/*
+	 * Read the request from the client
+	 */
 	private String readRequestFromClient() throws IOException {
 		boolean postFlag = false;
 		String ret_read;

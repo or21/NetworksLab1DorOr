@@ -5,6 +5,9 @@ import java.util.HashMap;
 
 public class PostRequest extends GetRequest {
 
+	/*
+	 * Constructor
+	 */
 	public PostRequest(String[] i_FirstHeaderRow, HashMap<String, String> i_RequestHeaders, Socket i_Socket) {
 		super(i_FirstHeaderRow, i_RequestHeaders, i_Socket);
 
@@ -19,6 +22,11 @@ public class PostRequest extends GetRequest {
 		}
 	}
 
+	/*
+	 * Return response for POST request
+	 * Regular requests will go to GET response. 
+	 * If it's post from our HTML - return the parameters from it.
+	 */
 	@Override
 	public void ReturnResponse() throws IOException {
 		if (!m_Url.equals("/params_info.html")) {
@@ -37,9 +45,7 @@ public class PostRequest extends GetRequest {
 			m_Content = content.toString().getBytes();
 			m_Headers = Tools.SetupResponseHeaders(m_Content, m_Type);
 			StringBuilder responseString = new StringBuilder(createHeaders());
-			
 			System.out.println(responseString);
-
 			responseString.append(CRLF);
 
 			try {

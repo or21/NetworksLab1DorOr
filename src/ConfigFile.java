@@ -1,7 +1,4 @@
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.HashMap;
 
 /**
@@ -34,49 +31,17 @@ public class ConfigFile implements IParser {
 		return m_Instance;
 	}
 	
+	/**
+	 * Parse the config to dictionary
+	 */
 	@Override
 	public void Parse(String i_Filename) {
 		m_ConfigDictionary = new HashMap<>();
-		byte[] contentAsByteArray = readFile(new File(i_Filename));
+		byte[] contentAsByteArray = Tools.ReadFile(new File(i_Filename));
 		String[] content = new String(contentAsByteArray).split("\r\n");
 		for(String line : content) {
 			String[] keyValuePair = line.split("=");
 			m_ConfigDictionary.put(keyValuePair[0], keyValuePair[1]);
-		}
-	}
-
-	private byte[] readFile(File i_File)
-	{
-		FileInputStream fis = null;
-		try
-		{
-			fis = new FileInputStream(i_File);
-			byte[] bFile = new byte[(int)i_File.length()];
-			// read until the end of the stream.
-			while(fis.available() != 0)
-			{
-				fis.read(bFile, 0, bFile.length);
-			}
-			return bFile;
-		}
-		catch(FileNotFoundException i_FNFE)
-		{
-			System.out.println("File not found");
-			return null;
-		}
-		catch(IOException i_IOE)
-		{
-			System.out.println("IOException");
-			return null;
-		}
-		finally {
-			if (fis != null) {
-				try {
-					fis.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
 		}
 	}
 	

@@ -18,6 +18,9 @@ public class GetRequest extends HeadRequest {
 		}
 	}
 
+	/*
+	 * Parse the parameters from the request
+	 */
 	protected void parseParams(String i_ParamsString) {
 		String[] parametersArray = i_ParamsString.split("&");
 
@@ -31,6 +34,9 @@ public class GetRequest extends HeadRequest {
 		}
 	}
 
+	/*
+	 * Build the response for GET request
+	 */
 	@Override
 	public void ReturnResponse() throws IOException {
 		OutputStream outputStream = m_Socket.getOutputStream();
@@ -38,21 +44,25 @@ public class GetRequest extends HeadRequest {
 		fileToReturn = openFileAccordingToUrl(m_Url);
 		if (!fileToReturn.exists()) {
 			ReturnNotFoundResponse();
-		} if (m_ShouldSendChunked) {
+		} 
+
+		// Create chunk response
+		if (m_ShouldSendChunked) {
+
 			m_Headers = Tools.SetupChunkedResponseHeaders(m_Type);
 			String headersToReturn = createHeaders();
-			m_Content = Tools.ReadFile(fileToReturn, m_Type);
+			m_Content = Tools.ReadFile(fileToReturn);
 			StringBuilder responseString = new StringBuilder(headersToReturn);
 			responseString.append(CRLF).append(m_Content);
 			writeChunked(new DataOutputStream(outputStream), responseString.toString().getBytes());
 		} else {
-			m_Content = Tools.ReadFile(fileToReturn, m_Type);
+			// Create and send regular response
+			m_Content = Tools.ReadFile(fileToReturn);
 			m_Headers = Tools.SetupResponseHeaders(m_Content, m_Type);
 			System.out.println(fileToReturn.getAbsolutePath());
 			StringBuilder responseString = new StringBuilder(createHeaders());
 
 			System.out.println(responseString);
-
 			responseString.append(CRLF);
 
 			try {
@@ -65,7 +75,10 @@ public class GetRequest extends HeadRequest {
 			}
 		}
 	}
-	
+
+	/*
+	 * Write the response in chunks
+	 */
 	private void writeChunked(DataOutputStream outputStream,
 			byte[] responseData) throws NumberFormatException, IOException {
 		int chunkSize = 1024;
@@ -73,33 +86,29 @@ public class GetRequest extends HeadRequest {
 		byte[] bytesToWriteArray;
 		int leftToWrite = responseData.length - bytesCounter;
 
+		// Build each chunk according to chunkSize
 		while (responseData.length - bytesCounter > 0) {
 			if (responseData.length - bytesCounter > chunkSize) {
 				bytesToWriteArray = new byte[chunkSize];
-				System.arraycopy(responseData, bytesCounter,
-						bytesToWriteArray, 0, chunkSize);
+				System.arraycopy(responseData, bytesCounter, bytesToWriteArray, 0, chunkSize);
 				bytesCounter += chunkSize;
 			} else {
 				bytesToWriteArray = new byte[leftToWrite];
-				System.arraycopy(responseData, bytesCounter,
-						bytesToWriteArray, 0, leftToWrite);
+				System.arraycopy(responseData, bytesCounter, bytesToWriteArray, 0, leftToWrite);
 				bytesCounter += leftToWrite;
 			}
 
 			sendChunk(outputStream, bytesToWriteArray);
-
 			leftToWrite = responseData.length - bytesCounter;
 		}
+		
 		outputStream.write((Integer.toHexString(0)).getBytes());
 		outputStream.write(CRLF.getBytes());
 	}
 
-	private void sendChunk(DataOutputStream outputStream,
-			byte[] bytesToWriteArray) throws IOException {
+	private void sendChunk(DataOutputStream outputStream, byte[] bytesToWriteArray) throws IOException {
 		System.out.println(new String(bytesToWriteArray));
-		outputStream
-				.write((Integer.toHexString(bytesToWriteArray.length) + CRLF)
-						.getBytes());
+		outputStream.write((Integer.toHexString(bytesToWriteArray.length) + CRLF).getBytes());
 		outputStream.write(bytesToWriteArray);
 		outputStream.write(CRLF.getBytes());
 	}
