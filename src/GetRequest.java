@@ -1,5 +1,6 @@
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
@@ -50,11 +51,9 @@ public class GetRequest extends HeadRequest {
 		// Create chunk response
 		if (m_ShouldSendChunked) {
 			m_Headers = Tools.SetupChunkedResponseHeaders(m_Type);
-			String headersToReturn = createHeaders();
-			m_Content = Tools.ReadFile(fileToReturn);
-			StringBuilder responseString = new StringBuilder(headersToReturn);
+			StringBuilder responseString = new StringBuilder(createHeaders());
 			responseString.append(CRLF);
-			writeChunked(new DataOutputStream(outputStream), responseString.toString().getBytes());
+			writeChunked(new DataOutputStream(outputStream), responseString.toString().getBytes(), fileToReturn);
 		} else {
 			// Create and send regular response
 			m_Content = Tools.ReadFile(fileToReturn);
@@ -79,46 +78,37 @@ public class GetRequest extends HeadRequest {
 	/*
 	 * Write the response in chunks
 	 */
-	private void writeChunked(DataOutputStream i_OutputStream, byte[] i_HeadersData) throws NumberFormatException, IOException {
+	private void writeChunked(DataOutputStream i_OutputStream, byte[] i_HeadersData, File i_FileToReturn) throws NumberFormatException, IOException {
 		int chunkSize = 1024;
-		int bytesCounter = 0;
-		int amountOfData = m_Content.length;
-		int leftToWrite = amountOfData - bytesCounter;
-		byte[] bytesToWriteArray;
+		int amountOfDataRead;
+		byte[] bytesToWriteArray = new byte[chunkSize];
 		
-		byte[] dataToSend = new byte[amountOfData];
-		//System.arraycopy(i_HeadersData, 0, dataToSend, 0, i_HeadersData.length);
-		System.arraycopy(m_Content, 0, dataToSend, 0, m_Content.length);
-
 		System.out.println(new String(i_HeadersData));
 		i_OutputStream.write(i_HeadersData);
+		FileInputStream fis = new FileInputStream(i_FileToReturn);
 		
-		// Build each chunk according to chunkSize
-		while (leftToWrite > 0) {
-			if (leftToWrite >= chunkSize - CRLFinByteArray.length) {
-				bytesToWriteArray = new byte[chunkSize];
-				System.arraycopy(dataToSend, bytesCounter, bytesToWriteArray, 0, chunkSize - CRLFinByteArray.length);
-				bytesCounter += (chunkSize - CRLFinByteArray.length);
+		// Read and build each chunk according to chunkSize
+		while ((amountOfDataRead = fis.read(bytesToWriteArray, 0, chunkSize - CRLFinByteArray.length)) != -1) {
 				System.arraycopy(CRLFinByteArray, 0, bytesToWriteArray, chunkSize - CRLFinByteArray.length, CRLFinByteArray.length);
-			} else {
-				bytesToWriteArray = new byte[leftToWrite + CRLFinByteArray.length];
-				System.arraycopy(dataToSend, bytesCounter, bytesToWriteArray, 0, leftToWrite);
-				bytesCounter += leftToWrite;
-				System.arraycopy(CRLFinByteArray, 0, bytesToWriteArray, leftToWrite, CRLFinByteArray.length);
-			}
-			
-			sendChunk(i_OutputStream, bytesToWriteArray);
-			leftToWrite = amountOfData - bytesCounter;
+				sendChunk(i_OutputStream, bytesToWriteArray, amountOfDataRead + CRLFinByteArray.length);
+				bytesToWriteArray = new byte[chunkSize];
 		}
 		
+		// Finish the file - send 0 to let the client know.
 		i_OutputStream.write((Integer.toHexString(0)).getBytes());
 		i_OutputStream.write(CRLFinByteArray);
 		i_OutputStream.write(CRLFinByteArray);
+		i_OutputStream.flush();
+		i_OutputStream.close();
+		fis.close();
 	}
 
-	private void sendChunk(DataOutputStream i_OutputStream, byte[] i_BytesToWriteArray) throws IOException {
-		System.out.println(i_BytesToWriteArray.length + CRLF + new String(i_BytesToWriteArray));
-		i_OutputStream.write((Integer.toHexString(i_BytesToWriteArray.length) + CRLF).getBytes());
+	/*
+	 * Send the data in chunk format
+	 */
+	private void sendChunk(DataOutputStream i_OutputStream, byte[] i_BytesToWriteArray, int i_AmountOfDataToWrite) throws IOException {
+		System.out.println(i_AmountOfDataToWrite + CRLF + new String(i_BytesToWriteArray).substring(0, i_AmountOfDataToWrite));
+		i_OutputStream.write((Integer.toHexString(i_AmountOfDataToWrite) + CRLF).getBytes());
 		i_OutputStream.write(i_BytesToWriteArray);
 		i_OutputStream.flush();
 	}
