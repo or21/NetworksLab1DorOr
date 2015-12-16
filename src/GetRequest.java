@@ -9,7 +9,7 @@ import java.util.HashMap;
 public class GetRequest extends HeadRequest {
 
 	protected HashMap<String, String> m_Params;
-	byte[] CRLFinByteArray = CRLF.getBytes();
+	byte[] m_CRLFInByteArray = CRLF.getBytes();
 
 	public GetRequest(String[] i_FirstHeaderRow, HashMap<String, String> requestHeaders, Socket i_Socket) {
 		super(i_FirstHeaderRow, requestHeaders, i_Socket);
@@ -47,9 +47,8 @@ public class GetRequest extends HeadRequest {
 		if (!fileToReturn.exists()) {
 			ReturnNotFoundResponse();
 		} 
-
 		// Create chunk response
-		if (m_ShouldSendChunked) {
+		else if (m_ShouldSendChunked) {
 			m_Headers = Tools.SetupChunkedResponseHeaders(m_Type);
 			StringBuilder responseString = new StringBuilder(createHeaders());
 			responseString.append(CRLF);
@@ -79,25 +78,24 @@ public class GetRequest extends HeadRequest {
 	 * Write the response in chunks
 	 */
 	private void writeChunked(DataOutputStream i_OutputStream, byte[] i_HeadersData, File i_FileToReturn) throws NumberFormatException, IOException {
-		int chunkSize = 1024;
+		int chunkSize = 132;
 		int amountOfDataRead;
-		byte[] bytesToWriteArray = new byte[chunkSize];
+		byte[] dataToSend = new byte[chunkSize];
 		
 		System.out.println(new String(i_HeadersData));
 		i_OutputStream.write(i_HeadersData);
 		FileInputStream fis = new FileInputStream(i_FileToReturn);
 		
 		// Read and build each chunk according to chunkSize
-		while ((amountOfDataRead = fis.read(bytesToWriteArray, 0, chunkSize - CRLFinByteArray.length)) != -1) {
-				System.arraycopy(CRLFinByteArray, 0, bytesToWriteArray, chunkSize - CRLFinByteArray.length, CRLFinByteArray.length);
-				sendChunk(i_OutputStream, bytesToWriteArray, amountOfDataRead + CRLFinByteArray.length);
-				bytesToWriteArray = new byte[chunkSize];
+		while ((amountOfDataRead = fis.read(dataToSend, 0, chunkSize)) != -1) {
+				sendChunk(i_OutputStream, dataToSend, amountOfDataRead);
+				dataToSend = new byte[chunkSize];
 		}
 		
 		// Finish the file - send 0 to let the client know.
-		i_OutputStream.write((Integer.toHexString(0)).getBytes());
-		i_OutputStream.write(CRLFinByteArray);
-		i_OutputStream.write(CRLFinByteArray);
+		System.out.println((Integer.toHexString(0) + CRLF));
+		i_OutputStream.write((Integer.toHexString(0) + CRLF).getBytes());
+		i_OutputStream.write(m_CRLFInByteArray);
 		i_OutputStream.flush();
 		i_OutputStream.close();
 		fis.close();
@@ -106,10 +104,13 @@ public class GetRequest extends HeadRequest {
 	/*
 	 * Send the data in chunk format
 	 */
-	private void sendChunk(DataOutputStream i_OutputStream, byte[] i_BytesToWriteArray, int i_AmountOfDataToWrite) throws IOException {
-		System.out.println(i_AmountOfDataToWrite + CRLF + new String(i_BytesToWriteArray).substring(0, i_AmountOfDataToWrite));
-		i_OutputStream.write((Integer.toHexString(i_AmountOfDataToWrite) + CRLF).getBytes());
-		i_OutputStream.write(i_BytesToWriteArray);
+	private void sendChunk(DataOutputStream i_OutputStream, byte[] i_Data, int i_AmountOfDataToWrite) throws IOException {
+		String chunkSize = Integer.toHexString(i_AmountOfDataToWrite);
+		System.out.println(chunkSize + CRLF + new String(i_Data));
+		i_OutputStream.write(chunkSize.getBytes());
+		i_OutputStream.write(m_CRLFInByteArray);
+		i_OutputStream.write(new String(i_Data, 0, i_AmountOfDataToWrite).getBytes());
+		i_OutputStream.write(m_CRLFInByteArray);
 		i_OutputStream.flush();
 	}
 }

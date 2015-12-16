@@ -24,7 +24,7 @@ public final class HTTPRequestHandler extends Thread
 		}
 		catch (Exception e)
 		{
-			if (m_Socket != null && m_Socket.isClosed()) {
+			if (m_Socket != null && !m_Socket.isClosed()) {
 					try {
 						new ErrorRequest(RequestFactory.m_InternalErrorPath, RequestFactory.m_InternalErrorHeader, m_Socket).ReturnResponse();
 					} catch (IOException ioe) {

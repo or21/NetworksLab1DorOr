@@ -45,9 +45,9 @@ public class HeadRequest implements IClientRequest {
 		m_ConfigFileRootPath = ConfigFile.GetInstance().GetConfigurationParameters().get(ConfigFile.CONFIG_FILE_ROOT_KEY);
 		m_ConfigFileDefaultPage = ConfigFile.GetInstance().GetConfigurationParameters().get(ConfigFile.CONFIG_FILE_DEFAULT_PAGE_KEY);
 
-		m_Url = i_FirstHeaderRow[1].replace("/../", "/");
-		m_Url = i_FirstHeaderRow[1].replace("/..", "");
-
+		m_Url = i_FirstHeaderRow[1].replace("..", "");
+		m_Url = m_Url.replaceAll("[/]+", "/");
+		
 		m_ShouldSendChunked = requestHeaders.containsKey("chunked") && requestHeaders.get("chunked").equals("yes");
 
 		if (m_Url.equals(m_ConfigFileRootPath)) {
