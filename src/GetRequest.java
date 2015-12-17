@@ -106,10 +106,10 @@ public class GetRequest extends HeadRequest {
 	 */
 	private void sendChunk(DataOutputStream i_OutputStream, byte[] i_Data, int i_AmountOfDataToWrite) throws IOException {
 		String chunkSize = Integer.toHexString(i_AmountOfDataToWrite);
-		System.out.println(chunkSize + CRLF + new String(i_Data));
+		//System.out.println(chunkSize + CRLF + new String(i_Data));
 		i_OutputStream.write(chunkSize.getBytes());
 		i_OutputStream.write(m_CRLFInByteArray);
-		i_OutputStream.write(new String(i_Data, 0, i_AmountOfDataToWrite).getBytes());
+		i_OutputStream.write(i_Data, 0, i_AmountOfDataToWrite);
 		i_OutputStream.write(m_CRLFInByteArray);
 		i_OutputStream.flush();
 	}
