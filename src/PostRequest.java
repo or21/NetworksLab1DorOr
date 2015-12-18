@@ -1,3 +1,5 @@
+import java.io.ByteArrayInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
@@ -41,17 +43,30 @@ public class PostRequest extends GetRequest {
 			for (String key : m_Params.keySet()) {
 				content.append(key + ": " + m_Params.get(key) + "<br>");
 			}
-			
+
 			content.append("</body>\n</html>");
 			m_Content = content.toString().getBytes();
-			m_Headers = Tools.SetupResponseHeaders(m_Content, m_Type);
+			m_Headers = m_ShouldSendChunked ? Tools.SetupChunkedResponseHeaders(m_Type) : Tools.SetupResponseHeaders(m_Content, m_Type);
 			StringBuilder responseString = new StringBuilder(createHeaders());
 			System.out.println(responseString);
 			responseString.append(CRLF);
-
 			try {
 				outputStream.write(responseString.toString().getBytes());
-				outputStream.write(m_Content);
+				if (m_ShouldSendChunked) {
+					DataOutputStream output = new DataOutputStream(outputStream);
+					byte[] buffer = new byte[m_ChunkSize];
+					ByteArrayInputStream inputStream = new ByteArrayInputStream(m_Content);
+					int amountOfDataRead;
+					while ((amountOfDataRead = inputStream.read(buffer, 0, m_ChunkSize)) != -1) {
+						sendChunk(output, buffer, amountOfDataRead);
+					}
+					System.out.println((Integer.toHexString(0) + CRLF));
+					output.write((Integer.toHexString(0) + CRLF).getBytes());
+					output.write(m_CRLFInByteArray);
+				} else {
+					outputStream.write(m_Content);
+					outputStream.flush();
+				}
 				outputStream.flush();
 				outputStream.close();
 			} catch (IOException e) {

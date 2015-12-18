@@ -8,6 +8,7 @@ import java.util.HashMap;
 
 public class GetRequest extends HeadRequest {
 
+	protected int m_ChunkSize = 132;
 	protected HashMap<String, String> m_Params;
 	byte[] m_CRLFInByteArray = CRLF.getBytes();
 
@@ -78,18 +79,17 @@ public class GetRequest extends HeadRequest {
 	 * Write the response in chunks
 	 */
 	private void writeChunked(DataOutputStream i_OutputStream, byte[] i_HeadersData, File i_FileToReturn) throws NumberFormatException, IOException {
-		int chunkSize = 132;
 		int amountOfDataRead;
-		byte[] dataToSend = new byte[chunkSize];
+		byte[] dataToSend = new byte[m_ChunkSize];
 		
 		System.out.println(new String(i_HeadersData));
 		i_OutputStream.write(i_HeadersData);
 		FileInputStream fis = new FileInputStream(i_FileToReturn);
 		
 		// Read and build each chunk according to chunkSize
-		while ((amountOfDataRead = fis.read(dataToSend, 0, chunkSize)) != -1) {
+		while ((amountOfDataRead = fis.read(dataToSend, 0, m_ChunkSize)) != -1) {
 				sendChunk(i_OutputStream, dataToSend, amountOfDataRead);
-				dataToSend = new byte[chunkSize];
+				dataToSend = new byte[m_ChunkSize];
 		}
 		
 		// Finish the file - send 0 to let the client know.
@@ -104,7 +104,7 @@ public class GetRequest extends HeadRequest {
 	/*
 	 * Send the data in chunk format
 	 */
-	private void sendChunk(DataOutputStream i_OutputStream, byte[] i_Data, int i_AmountOfDataToWrite) throws IOException {
+	protected void sendChunk(DataOutputStream i_OutputStream, byte[] i_Data, int i_AmountOfDataToWrite) throws IOException {
 		String chunkSize = Integer.toHexString(i_AmountOfDataToWrite);
 		//System.out.println(chunkSize + CRLF + new String(i_Data));
 		i_OutputStream.write(chunkSize.getBytes());
