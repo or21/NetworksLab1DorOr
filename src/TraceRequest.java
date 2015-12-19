@@ -40,7 +40,7 @@ public class TraceRequest extends HeadRequest {
 				outputStream.flush();
 				outputStream.close();
 			} catch (IOException e) {
-				e.printStackTrace();
+				System.out.println("No socket to write the respone to.");
 			}
 		}
 	}

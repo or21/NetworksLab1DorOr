@@ -44,9 +44,8 @@ public class ErrorRequest implements IClientRequest {
 			outputStream.flush();
 			outputStream.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}		
+			System.out.println("No socket to write the respone to.");
+		}
 	}
 
 }

@@ -22,6 +22,7 @@ public class HeadRequest implements IClientRequest {
 	private final String TYPE_OCTET = "application/octet";
 	private final String m_404NotFoundPath = "static/html/404notfound.html";
 	private final String m_404NotFoundHeader = "HTTP/1.1 404 Not Found\r\n";
+	private final String[] m_ErrorFilePath = new String[] {"/400BadRequest.html", "/404notfound.html", "/403ForbiddenRequest.html", "/500InternalError.html", "/501NotImplemented.html" };
 
 	protected final String HTTP_200_OK = "HTTP/1.1 200 OK\r\n";
 	protected final String CRLF = "\r\n";
@@ -47,8 +48,11 @@ public class HeadRequest implements IClientRequest {
 		m_Url = i_FirstHeaderRow[1].replace("..", "");
 		m_Url = m_Url.replaceAll("[/]+", "/");
 		
+		if (checkForbiddenURL()) {
+			throw new IllegalAccessError();
+		}
+		
 		m_ShouldSendChunked = requestHeaders.containsKey("chunked") && requestHeaders.get("chunked").equals("yes");
-		//m_ShouldSendChunked = true;
 
 		if (m_Url.equals(m_ConfigFileRootPath)) {
 			m_Type = TYPE_HTML;
@@ -62,6 +66,16 @@ public class HeadRequest implements IClientRequest {
 				m_Type = TYPE_HTML;
 			}
 		}
+	}
+
+	private boolean checkForbiddenURL() {
+		for (String path : m_ErrorFilePath) {
+			if (m_Url.equals(path)) {
+				return true;
+			}
+		}
+		
+		return false;
 	}
 
 	/*
@@ -145,7 +159,7 @@ public class HeadRequest implements IClientRequest {
 				outputStream.flush();
 				outputStream.close();
 			} catch (IOException e) {
-				e.printStackTrace();
+				System.out.println("No socket to write the respone to.");
 			}
 		}
 	}

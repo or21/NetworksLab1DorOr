@@ -68,7 +68,7 @@ public class Tools {
 				try {
 					fis.close();
 				} catch (IOException e) {
-					
+					System.out.println("No socket to write the respone to.");
 				}
 			}
 		}

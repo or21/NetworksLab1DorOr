@@ -23,11 +23,11 @@ public class RequestFactory {
 		String[] requestSplitByBreak = i_Request.split("\r\n\r\n");
 		String[] allHeaders = requestSplitByBreak[0].split("\r\n");
 		HashMap<String, String> requestHeaders = Tools.SetupRequestHeaders(Arrays.copyOfRange(allHeaders, 1, allHeaders.length));
-		
+
 		if (requestSplitByBreak.length == 2 && requestSplitByBreak[1] != null) {
 			requestHeaders.put("params", requestSplitByBreak[1]);
 		}
-		
+
 		String[] firstHeader = allHeaders[0].split("[ ]+");
 		if ((firstHeader.length != 3) || (!eSupportedHTTP.isInEnum(firstHeader[2]))){ 
 			return new ErrorRequest(m_BadRequestPath, m_BadRequestHeader, i_Socket);
@@ -48,10 +48,13 @@ public class RequestFactory {
 
 				case TRACE: 
 					return new TraceRequest(firstHeader, requestHeaders, i_Request, i_Socket);
-				
+
 				default:
 					return new ErrorRequest(m_NotImplementedPath, m_NotImplementedHeader, i_Socket);
 				}
+			}
+			catch (IllegalAccessError iae) {
+				return new ErrorRequest(m_ForbiddenRequestPath, m_ForbiddenRequestHeader, i_Socket);
 			}
 			catch (IllegalArgumentException iae) {
 				return new ErrorRequest(m_NotImplementedPath, m_NotImplementedHeader, i_Socket);
@@ -70,14 +73,14 @@ public class RequestFactory {
 	 */
 	private static boolean checkValidPath(String i_Url) {
 		boolean isValid = true;
-		
+
 		if (!i_Url.startsWith("/")) {
 			isValid = false;
 		}
-		
+
 		return isValid;
 	}
-	
+
 	/*
 	 * Enum with all supported requests
 	 */
@@ -87,37 +90,33 @@ public class RequestFactory {
 		HEAD,
 		TRACE
 	}
-	
+
 	/*
 	 * Enum with the supported HTTP versions
 	 */
 	public enum eSupportedHTTP {
 		ONE("HTTP/1.0"),
 		ONEPOINTONE("HTTP/1.1");
-		
+
 		private final String m_Value;
-		
+
 		eSupportedHTTP (String value) { 
 			this.m_Value = value; 
 		}
-		
-	    public String getValue() { 
-	    	return m_Value; 
-    	}
-	    
-	    public static boolean isInEnum(String str) {
-	    	boolean isEnumValue = false;
-	    	try {
-	    		for (eSupportedHTTP enumVar : eSupportedHTTP.values()) {
-					if (str.equals(enumVar.getValue())) {
-						isEnumValue = true;
-					}
+
+		public String getValue() { 
+			return m_Value; 
+		}
+
+		public static boolean isInEnum(String str) {
+			boolean isEnumValue = false;
+			for (eSupportedHTTP enumVar : eSupportedHTTP.values()) {
+				if (str.equals(enumVar.getValue())) {
+					isEnumValue = true;
 				}
-	    	}
-	    	catch (Exception e) {
-	    	}
-	    	
-	    	return isEnumValue;
-	    }
+			}
+
+			return isEnumValue;
+		}
 	}
 }

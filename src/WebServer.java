@@ -53,7 +53,7 @@ public class WebServer {
 		try {
 			return m_ServerSocket.accept();
 		} catch (IOException e) {
-			e.printStackTrace();
+			System.out.println("No socket to write the respone to.");
 		}
 		return null;
 	}
@@ -67,7 +67,7 @@ public class WebServer {
 			System.exit(1);
 		}
 		catch (IOException e) {
-			e.printStackTrace();
+			System.out.println("No socket to write the respone to.");
 		} 
 		return null;
 	}
