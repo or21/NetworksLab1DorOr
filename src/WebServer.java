@@ -1,4 +1,5 @@
 import java.io.IOException;
+import java.net.BindException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
@@ -60,9 +61,14 @@ public class WebServer {
 	private ServerSocket createServerSocket() {
 		try {
 			return new ServerSocket(m_Port);
-		} catch (IOException e) {
-			e.printStackTrace();
 		}
+		catch (BindException be) {
+			System.out.println("Usage: Another process is using the port given by the config file. Shut it down so that this process will be able to use this port");
+			System.exit(1);
+		}
+		catch (IOException e) {
+			e.printStackTrace();
+		} 
 		return null;
 	}
 
