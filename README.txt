@@ -1,6 +1,6 @@
 =====================================================================================
 
-					Computer Networks Lab - Or Brand, Dor Samet
+		Computer Networks Lab - Or Brand, Dor Samet
 
 =====================================================================================
 
@@ -13,7 +13,8 @@ A) Steps for success:
 	1. compile.bat compiles our java files to binary files, and copies the "static" directory to the serverroot directory.
 	2. run.bat runs the server on the port given by the config.ini file
 
-	Be aware that the server relies on its "static" files that will be in the serverroot directory
+	Be aware that the server relies on its "static" files that will be in the serverroot directory. The compile.bat file copies the files to this directory. 
+	Note that the usage of this server relies on the copying of these files from its directory. 
 
 B) What has been implemented:
    ==========================
