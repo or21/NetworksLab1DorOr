@@ -73,7 +73,7 @@ public class WebServer {
 	}
 
 	private void onFinishThread() {
-		System.out.println("Thread Finished");
+		System.out.println("Thread Finished\n");
 		m_ThreadPool.Manage();
 	}
 }

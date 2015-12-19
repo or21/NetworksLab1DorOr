@@ -7,13 +7,15 @@ import java.util.HashMap;
  */
 public class RequestFactory {
 
-	public final static String m_NotImplementedPath = "static/html/501NotImplemented.html";
+	public final static String m_ConfigFileRootPath = ConfigFile.GetInstance().GetConfigurationParameters().get(ConfigFile.CONFIG_FILE_ROOT_KEY);
+	public final static String m_ConfigFileDefaultPage = ConfigFile.GetInstance().GetConfigurationParameters().get(ConfigFile.CONFIG_FILE_DEFAULT_PAGE_KEY);
+	public final static String m_NotImplementedPath = m_ConfigFileRootPath + "static/html/501NotImplemented.html";
 	public final static String m_NotImplementedHeader = "HTTP/1.1 501 Not Implemented\r\n";
-	public final static String m_BadRequestPath = "static/html/400BadRequest.html";
+	public final static String m_BadRequestPath = m_ConfigFileRootPath + "static/html/400BadRequest.html";
 	public final static String m_BadRequestHeader = "HTTP/1.1 400 Bad Request\r\n";
-	public final static String m_ForbiddenRequestPath = "static/html/403ForbiddenRequest.html";
+	public final static String m_ForbiddenRequestPath = m_ConfigFileRootPath + "static/html/403ForbiddenRequest.html";
 	public final static String m_ForbiddenRequestHeader = "HTTP/1.1 403 Forbidden\r\n";
-	public final static String m_InternalErrorPath = "static/html/500InternalError.html";
+	public final static String m_InternalErrorPath = m_ConfigFileRootPath + "static/html/500InternalError.html";
 	public final static String m_InternalErrorHeader = "HTTP/1.1 500 Internal Server Error\r\n";
 
 	/*

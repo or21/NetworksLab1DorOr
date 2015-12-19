@@ -20,7 +20,7 @@ public class HeadRequest implements IClientRequest {
 	private final String TYPE_ICON = "icon";
 	private final String TYPE_IMAGE = "image/";
 	private final String TYPE_OCTET = "application/octet";
-	private final String m_404NotFoundPath = "static/html/404notfound.html";
+	private final String m_404NotFoundPath = RequestFactory.m_ConfigFileRootPath + "static/html/404notfound.html";
 	private final String m_404NotFoundHeader = "HTTP/1.1 404 Not Found\r\n";
 	private final String[] m_ErrorFilePath = new String[] {"/400BadRequest.html", "/404notfound.html", "/403ForbiddenRequest.html", "/500InternalError.html", "/501NotImplemented.html" };
 
@@ -32,8 +32,7 @@ public class HeadRequest implements IClientRequest {
 	protected String m_Url;
 	protected HashMap<String, String> m_Headers;
 	protected byte[] m_Content;
-	protected String m_ConfigFileRootPath;
-	protected String m_ConfigFileDefaultPage;
+	protected String m_DefaultFromClient = "/";
 	protected String m_Extension;
 	protected Socket m_Socket;
 
@@ -42,8 +41,7 @@ public class HeadRequest implements IClientRequest {
 	 */
 	public HeadRequest(String[] i_FirstHeaderRow, HashMap<String, String> requestHeaders, Socket i_Socket) {
 		this.m_Socket = i_Socket;
-		m_ConfigFileRootPath = ConfigFile.GetInstance().GetConfigurationParameters().get(ConfigFile.CONFIG_FILE_ROOT_KEY);
-		m_ConfigFileDefaultPage = ConfigFile.GetInstance().GetConfigurationParameters().get(ConfigFile.CONFIG_FILE_DEFAULT_PAGE_KEY);
+		
 
 		m_Url = i_FirstHeaderRow[1].replace("..", "");
 		m_Url = m_Url.replaceAll("[/]+", "/");
@@ -54,7 +52,7 @@ public class HeadRequest implements IClientRequest {
 		
 		m_ShouldSendChunked = requestHeaders.containsKey("chunked") && requestHeaders.get("chunked").equals("yes");
 
-		if (m_Url.equals(m_ConfigFileRootPath)) {
+		if (m_Url.equals(m_DefaultFromClient)) {
 			m_Type = TYPE_HTML;
 		} else { 
 			int i = m_Url.lastIndexOf('.');
@@ -116,9 +114,9 @@ public class HeadRequest implements IClientRequest {
 	 * Open the file from the URL request
 	 */
 	protected File openFileAccordingToUrl(String i_Url) {
-		return (m_Url.equals(m_ConfigFileRootPath) ? 
-				new File(m_StaticFilesPath + PATH_HTML + m_ConfigFileDefaultPage) : 
-					new File(m_StaticFilesPath + determineFileLocation() + m_Url));
+		return (m_Url.equals(m_DefaultFromClient) ? 
+				new File(RequestFactory.m_ConfigFileRootPath + m_StaticFilesPath + PATH_HTML + RequestFactory.m_ConfigFileDefaultPage) : 
+					new File(RequestFactory.m_ConfigFileRootPath + m_StaticFilesPath + determineFileLocation() + m_Url));
 	}
 
 	/*

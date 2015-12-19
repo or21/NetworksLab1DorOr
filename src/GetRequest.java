@@ -58,7 +58,6 @@ public class GetRequest extends HeadRequest {
 			// Create and send regular response
 			m_Content = Tools.ReadFile(fileToReturn);
 			m_Headers = Tools.SetupResponseHeaders(m_Content, m_Type);
-			System.out.println(fileToReturn.getAbsolutePath());
 			StringBuilder responseString = new StringBuilder(createHeaders());
 
 			System.out.println(responseString);
