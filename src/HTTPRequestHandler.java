@@ -1,6 +1,5 @@
 import java.io.* ;
 import java.net.* ;
-import java.util.Scanner;
 
 public final class HTTPRequestHandler extends Thread
 {
