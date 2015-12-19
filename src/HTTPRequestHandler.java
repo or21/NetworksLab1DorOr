@@ -1,18 +1,19 @@
 import java.io.* ;
 import java.net.* ;
+import java.util.Scanner;
 
 public final class HTTPRequestHandler extends Thread
 {
 	public final static String CRLF = "\r\n";
 		
 	private Socket m_Socket;
-	private Runnable m_Callback;
+	private Runnable m_ManageThreadsCallback;
 	
 	// Constructor
 	public HTTPRequestHandler(Socket i_Socket, Runnable i_Callback)
 	{
 		this.m_Socket = i_Socket;
-		this.m_Callback = i_Callback;
+		this.m_ManageThreadsCallback = i_Callback;
 	}
 
 	// Implement the handler routine.
@@ -27,11 +28,12 @@ public final class HTTPRequestHandler extends Thread
 			if (m_Socket != null && !m_Socket.isClosed()) {
 					try {
 						new ErrorRequest(RequestFactory.m_InternalErrorPath, RequestFactory.m_InternalErrorHeader, m_Socket).ReturnResponse();
-					} catch (IOException ioe) {
-						System.out.println(ioe.getMessage());
-					}					
+					} catch (Exception ge) {
+						System.out.println("Something occured which shouldn't have. We sent a team of highly trained monkeys to deal with it..");
+						
+					}
 			} else {
-				System.out.println(e.getMessage());
+				System.out.println("Something occured which shouldn't have. We sent a team of highly trained monkeys to deal with it..");
 			}
 		}
 	}
@@ -46,7 +48,7 @@ public final class HTTPRequestHandler extends Thread
 		IClientRequest clientRequest = RequestFactory.CreateRequest(request, m_Socket);
 		clientRequest.ReturnResponse();
 		m_Socket.close();
-		m_Callback.run();
+		m_ManageThreadsCallback.run();
 	}
 
 	/*
